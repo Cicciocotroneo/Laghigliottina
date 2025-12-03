@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Ghigliottina v12</title>
+    <title>Ghigliottina v13</title>
     
+    <!-- PWA -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -19,7 +20,7 @@
 
         body {
             font-family: 'Montserrat', sans-serif;
-            background-color: #020617; /* Slate-950 solido */
+            background-color: #020617;
             color: white;
             height: 100dvh; width: 100vw;
             overflow: hidden; overscroll-behavior: none;
@@ -28,9 +29,8 @@
 
         .safe-area { padding-top: env(safe-area-inset-top, 20px); padding-bottom: env(safe-area-inset-bottom, 20px); }
 
-        /* Card solida per coprire eventuali artefatti */
         .ghig-card {
-            background-color: #1e40af; /* Blue-800 */
+            background-color: #1e40af;
             box-shadow: 0 4px 10px rgba(0,0,0,0.5); 
             border: 1px solid rgba(255,255,255,0.1);
             display: flex; align-items: center; justify-content: center;
@@ -46,10 +46,9 @@
 
         .gold { background: linear-gradient(to bottom, #facc15, #a16207); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         
-        /* Schermate a tutto schermo con sfondo solido per evitare sovrapposizioni */
         .full-screen-layer {
             position: absolute; inset: 0; 
-            background-color: #0f172a; /* Slate-900 */
+            background-color: #0f172a;
             z-index: 0; display: none; flex-direction: column;
         }
         .full-screen-layer.active { display: flex; z-index: 50; }
@@ -60,6 +59,7 @@
 </head>
 <body class="flex flex-col safe-area">
 
+    <!-- HEADER -->
     <header class="flex justify-between items-center px-4 py-2 h-[8dvh] shrink-0 z-[60] bg-slate-950 border-b border-white/5 relative">
         <div>
             <div class="text-[9px] text-slate-400 font-mono uppercase">Partita</div>
@@ -71,12 +71,14 @@
         </div>
     </header>
 
+    <!-- MAIN CONTAINER -->
     <main id="app" class="relative flex-1 w-full max-w-lg mx-auto overflow-hidden bg-slate-900 shadow-2xl md:border-x border-white/5">
         
+        <!-- MENU -->
         <div id="scr-menu" class="full-screen-layer active p-6">
             <div class="flex-1 flex flex-col justify-center text-center">
                 <h1 class="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-br from-indigo-300 via-white to-indigo-300 drop-shadow-lg tracking-tighter mb-2">LA<br>GHIGLIOTTINA</h1>
-                <p class="text-[9px] text-slate-500 uppercase tracking-[0.4em] font-bold">Stable v12</p>
+                <p class="text-[9px] text-slate-500 uppercase tracking-[0.4em] font-bold">Stable v13</p>
             </div>
             
             <div class="space-y-3 mb-8 w-full">
@@ -95,6 +97,7 @@
             </div>
         </div>
 
+        <!-- PAIRS (SCALATA) -->
         <div id="scr-pairs" class="full-screen-layer p-4">
             <div class="text-center shrink-0 mb-4">
                 <div class="text-2xl font-black text-white mb-1" id="money">€ 160.000</div>
@@ -111,6 +114,7 @@
             <div id="fx-cut" class="absolute inset-0 bg-red-900/80 pointer-events-none opacity-0 flex items-center justify-center z-50 transition-opacity backdrop-blur-sm"><div class="text-3xl font-black text-white bg-red-600 px-6 py-4 -rotate-12 border-4 border-white shadow-2xl">DIMEZZATO!</div></div>
         </div>
 
+        <!-- FINAL (FILO ROSSO) -->
         <div id="scr-final" class="full-screen-layer p-4">
             <div class="flex justify-between items-center mb-2 shrink-0">
                 <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Il Filo Rosso</div>
@@ -125,6 +129,7 @@
             </div>
         </div>
 
+        <!-- RESULT -->
         <div id="scr-res" class="full-screen-layer p-6 text-center overflow-y-auto">
             <div id="res-icon" class="text-6xl mb-2"></div>
             <h2 id="res-title" class="text-3xl font-black text-white mb-1"></h2>
@@ -141,6 +146,7 @@
             <button onclick="Game.next()" class="w-full py-4 bg-blue-600 text-white rounded-xl font-bold text-lg border-b-4 border-blue-800 mt-auto shadow-lg">AVANTI <i class="fas fa-arrow-right ml-2"></i></button>
         </div>
 
+        <!-- SUMMARY -->
         <div id="scr-sum" class="full-screen-layer p-6 text-center justify-center">
             <div class="text-xl font-bold text-slate-400 uppercase mb-4">Fine Sessione</div>
             <div class="bg-slate-900 p-8 rounded-3xl border border-yellow-500/20 w-full mb-6 shadow-2xl">
@@ -150,6 +156,7 @@
             <button onclick="UI.show('scr-menu')" class="w-full py-4 bg-slate-800 text-white rounded-xl font-bold border border-slate-600 hover:bg-slate-700">MENU</button>
         </div>
 
+        <!-- MODALS -->
         <div id="m-set" class="hidden absolute inset-0 z-[100] bg-slate-950 p-4 flex-col animate-fade-in">
             <div class="flex justify-between mb-4"><h2 class="font-bold text-white">Generatore</h2><button onclick="UI.closeModals()"><i class="fas fa-times text-slate-500"></i></button></div>
             <div class="flex-1 overflow-y-auto space-y-4">
@@ -174,34 +181,24 @@
     </main>
 
     <script>
-        // INIT PWA
         (function() {
             const m={name:"Ghigliottina",display:"standalone",background_color:"#020617",theme_color:"#020617",icons:[{src:"https://cdn-icons-png.flaticon.com/512/2040/2040504.png",sizes:"512x512",type:"image/png"}]};
             const l=document.createElement('link'); l.rel='manifest'; l.href=URL.createObjectURL(new Blob([JSON.stringify(m)],{type:'application/json'})); document.head.appendChild(l);
         })();
 
-        // DATABASE MANAGER & SANITIZER
         const DB = {
             q: [],
             load() { const s=localStorage.getItem('g_q'); if(s) this.q=JSON.parse(s); this.ui(); },
             set(g) {
-                // *** FILTRO ANTI-SPOILER POTENZIATO ***
                 const clean = g.map(game => {
                     const sol = game.sol.toUpperCase().trim();
                     game.pairs = game.pairs.map(p => {
                         let okWord = p.ok.toUpperCase().trim();
-                        
-                        // 1. Controllo diretto: Se la parola contiene la soluzione
                         if(okWord.includes(sol)) {
-                            // Rimuovi la soluzione (es: "SALA D'ATTESA" -> "SALA D'")
                             okWord = okWord.replace(sol, '').trim();
-                            // Rimuovi preposizioni rimaste appese alla fine (es: "SALA D'" -> "SALA")
                             okWord = okWord.replace(/\b(DI|DEL|DELLA|DELLO|DEGLI|D'|DA|CON|SU|PER|TRA|FRA)$/i, '').trim();
                         }
-                        
-                        // 2. Se dopo la pulizia è vuota o troppo corta, usa fallback
                         if(!okWord || okWord.length < 2) okWord = "NASCOSTO";
-                        
                         return {...p, ok: okWord};
                     });
                     return game;
@@ -215,15 +212,15 @@
                 const n=this.q.length; const p=5-n;
                 document.getElementById('q-bar').style.width=(n/5*100)+'%';
                 document.getElementById('q-stat').innerText=n+"/5 CARICHE";
-                document.getElementById('btn-start').innerText=n>0?(p===0?"INIZIA":"CONTINUA"):"RICARICA";
-                document.getElementById('btn-start').className=n>0?"w-full py-5 bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl font-bold text-lg text-white shadow-lg":"w-full py-5 bg-slate-800 rounded-2xl font-bold text-slate-500 border border-slate-700";
+                const btn = document.getElementById('btn-start');
+                btn.innerText=n>0?(p===0?"INIZIA":"CONTINUA"):"RICARICA";
+                btn.className=n>0?"w-full py-5 bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl font-bold text-lg text-white shadow-lg active:scale-95 transition-all":"w-full py-5 bg-slate-800 rounded-2xl font-bold text-slate-500 border border-slate-700";
                 document.getElementById('game-progress').innerText=p+" / 5";
                 const sc=parseInt(localStorage.getItem('g_sc')||0);
                 const el=document.getElementById('session-score'); if(el) el.innerText="€ "+sc.toLocaleString('it-IT');
             }
         };
 
-        // AI ENGINE (High Variance)
         const AI = {
             k: localStorage.getItem('g_k')||'',
             log(t,e){const l=document.getElementById('log');l.classList.remove('hidden');l.innerHTML+=`<div class="${e?'text-red-400':'text-green-400'}">> ${t}</div>`;l.scrollTop=l.scrollHeight;},
@@ -243,14 +240,13 @@
                 if(!this.k)return alert('No Key');
                 const btn=document.getElementById('btn-gen'); btn.disabled=true; btn.innerText='GENERAZIONE...';
                 
-                // Variabili di Entropia per evitare ripetizioni
-                const themes = ["oggetti casa","natura/animali","cibi/cucina","concetti astratti","mestieri/ruoli","geografia/viaggi","corpo/moda","scienza/tecnica","arte/musica","sport/giochi"];
+                const themes = ["oggetti casa","natura/animali","cibi/cucina","concetti astratti","mestieri","geografia","corpo/moda","scienza/tecnica","arte/musica","sport"];
                 const diffs = ["facili","medie","difficili","miste"];
                 const rndT = themes[Math.floor(Math.random()*themes.length)];
                 const rndD = diffs[Math.floor(Math.random()*diffs.length)];
 
-                const p=`Genera un JSON array con 5 oggetti gioco.
-                Tema preferito: ${rndT}. Difficoltà: ${rndD}.
+                const p=`Genera un JSON array con 5 oggetti gioco per "La Ghigliottina".
+                Tema: ${rndT}. Difficoltà: ${rndD}.
                 Struttura esatta: 
                 [
                   {
@@ -263,8 +259,8 @@
                     "exp": ["Spiegazione breve", ... (totale 5)]
                   }
                 ]
-                REGOLE FERREE: 
-                1. Il campo 'ok' DEVE contenere SOLO la parola indizio (es. 'SALA'), MAI la frase intera 'Sala d'attesa'.
+                REGOLE: 
+                1. 'ok' DEVE contenere SOLO la parola indizio (es. 'SALA'), MAI la frase 'Sala d'attesa'.
                 2. NON mettere MAI la soluzione nel campo 'ok'.
                 3. Italiano.`;
                 
@@ -280,24 +276,22 @@
             }
         };
 
-        // GAMEPLAY
         const Game = {
             c:null, m:0, i:0, t:null,
             checkQueue(){ if(!DB.q.length) { UI.modal('m-set'); document.getElementById('log').innerHTML="<div class='text-red-400'>Nessuna partita. Generane 5.</div>"; document.getElementById('log').classList.remove('hidden'); } else this.start(); },
             
             start(){
-                // Pulisce tutto prima di iniziare per evitare sovrapposizioni
-                this.cleanBoard();
-                
+                this.cleanBoard(); // PULIZIA SCHERMATA CRUCIALE
                 this.c=DB.next(); if(!this.c)return;
                 this.m=160000; this.i=0;
                 UI.show('scr-pairs'); this.updM(); this.pair();
             },
 
+            // FIX: Usa l'ID corretto 'res-sol' e controlla l'esistenza
             cleanBoard(){
-                document.getElementById('clues').innerHTML = ''; // Svuota indizi vecchi
-                document.getElementById('res-exp').innerHTML = ''; // Svuota spiegazioni vecchie
-                document.getElementById('res-word').innerText = ''; // Svuota soluzione
+                const cl = document.getElementById('clues'); if(cl) cl.innerHTML = '';
+                const re = document.getElementById('res-exp'); if(re) re.innerHTML = '';
+                const rs = document.getElementById('res-sol'); if(rs) rs.innerText = '';
             },
 
             updM(){ document.getElementById('money').innerText="€ "+this.m.toLocaleString('it-IT'); },
@@ -306,7 +300,6 @@
                 if(this.i>=5)return this.final();
                 const p=this.c.pairs[this.i];
                 const ca=document.getElementById('card-a'); const cb=document.getElementById('card-b');
-                // Reset classi carte
                 [ca,cb].forEach(c=>{ c.className="ghig-card flex-1 w-full rounded-2xl text-2xl font-bold text-white relative overflow-hidden bg-blue-800 border-b-4 border-blue-950"; c.style.pointerEvents='auto'; });
                 if(Math.random()>.5){this.set(ca,p.a);this.set(cb,p.b);}else{this.set(ca,p.b);this.set(cb,p.a);}
                 document.getElementById('p-idx').innerText=this.i+1; document.getElementById('p-bar').style.width=((this.i)/5*100)+'%';
@@ -321,7 +314,6 @@
                 document.getElementById('card-a').style.pointerEvents='none';
                 document.getElementById('card-b').style.pointerEvents='none';
                 
-                // Compare cleaned
                 if(sel.dataset.w.toUpperCase() === ok.toUpperCase()){
                     sel.classList.add('correct'); setTimeout(()=>{this.i++;this.pair();},600);
                 }else{
@@ -340,8 +332,7 @@
                 this.c.pairs.forEach((p,k)=>{
                     const d=document.createElement('div');
                     d.className="bg-blue-900/50 border border-blue-500/30 rounded p-3 text-center text-xl font-bold text-blue-100 opacity-0 transform translate-x-4 transition-all duration-500 shrink-0 shadow-sm";
-                    d.innerText=p.ok; 
-                    d.style.transitionDelay=(k*100)+'ms'; 
+                    d.innerText=p.ok; d.style.transitionDelay=(k*100)+'ms'; 
                     b.appendChild(d);
                     setTimeout(()=>d.classList.remove('opacity-0','translate-x-4'),50);
                 });
@@ -363,18 +354,10 @@
                 UI.show('scr-res'); 
                 document.getElementById('res-sol').innerText=this.c.sol;
                 const b=document.getElementById('res-exp'); b.innerHTML='';
-                
                 this.c.pairs.forEach((p,k)=>{
-                    b.innerHTML += `<div class="mb-2 border-b border-white/10 pb-1">
-                        <span class="text-blue-400 font-bold">${p.ok}</span> 
-                        <span class="text-slate-500 text-[10px]">➜</span> 
-                        <span class="text-white">${this.c.exp[k]}</span>
-                    </div>`;
+                    b.innerHTML += `<div class="mb-2 border-b border-white/10 pb-1"><span class="text-blue-400 font-bold">${p.ok}</span> <span class="text-slate-500 text-[10px]">➜</span> <span class="text-white">${this.c.exp[k]}</span></div>`;
                 });
-
-                const t=document.getElementById('res-title');
-                const msg=document.getElementById('res-msg');
-                const ico=document.getElementById('res-icon');
+                const t=document.getElementById('res-title'); const msg=document.getElementById('res-msg'); const ico=document.getElementById('res-icon');
                 if(w){
                     t.innerText="VITTORIA!"; t.className="text-4xl font-black text-green-500 mb-1";
                     msg.innerText=`Hai vinto € ${this.m.toLocaleString()}`; ico.innerText="🏆";
@@ -391,9 +374,7 @@
                 const pl=parseInt(localStorage.getItem('g_pl')||0)+1; localStorage.setItem('g_pl',pl);
                 DB.ui();
             },
-            
             next(){ if(!DB.q.length) this.finish(); else this.start(); },
-            
             finish(){
                 UI.show('scr-sum');
                 const tot=localStorage.getItem('g_sc');
@@ -405,19 +386,18 @@
         };
 
         const UI = {
-            // NEW ROBUST SHOW FUNCTION (Using Display Classes strictly)
             show(id){
-                const screens = document.querySelectorAll('.full-screen-layer');
-                screens.forEach(s => s.classList.remove('active')); // Nasconde tutti
-                document.getElementById(id).classList.add('active'); // Mostra solo richiesto
+                document.querySelectorAll('.full-screen-layer').forEach(s => s.classList.remove('active'));
+                document.getElementById(id).classList.add('active');
             },
             modal(id){ document.getElementById(id).classList.remove('hidden'); document.getElementById(id).classList.add('flex'); if(id==='m-set'&&AI.k){document.getElementById('api-key').value=AI.k;AI.conn();} },
             closeModals(){ document.querySelectorAll('[id^="m-"]').forEach(x=>x.classList.add('hidden')); },
             updLb(){ const l=JSON.parse(localStorage.getItem('g_lb')||'[]'); const b=document.getElementById('lb-bod'); b.innerHTML=''; l.forEach(r=>b.innerHTML+=`<tr><td class="p-2 border-b border-slate-800">${r.d}</td><td class="p-2 border-b border-slate-800 text-right text-yellow-500">€${r.m.toLocaleString()}</td></tr>`); }
         };
 
-        // BOOT
         DB.load(); UI.updLb();
     </script>
 </body>
 </html>
+
+
