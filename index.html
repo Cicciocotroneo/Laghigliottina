@@ -2,10 +2,9 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Ghigliottina v10</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Ghigliottina Championship</title>
     
-    <!-- PWA -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -22,359 +21,596 @@
             font-family: 'Montserrat', sans-serif;
             background: radial-gradient(circle at center, #0f172a 0%, #000000 100%);
             color: white;
-            height: 100dvh; width: 100vw;
-            overflow: hidden; overscroll-behavior: none;
-            -webkit-tap-highlight-color: transparent; user-select: none;
+            min-height: 100vh;
+            overscroll-behavior-y: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        .safe-area { padding-top: env(safe-area-inset-top, 20px); padding-bottom: env(safe-area-inset-bottom, 20px); }
-
-        .ghig-card {
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.08);
-            display: flex; align-items: center; justify-content: center;
-            transition: transform 0.1s;
+        .ghigliottina-card {
+            transition: transform 0.1s ease;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+            border: 1px solid rgba(255,255,255,0.05);
         }
-        .ghig-card:active { transform: scale(0.98); }
+        .ghigliottina-card:active { transform: scale(0.96); }
 
-        .correct { animation: flashG 0.5s forwards; }
-        .wrong { animation: flashR 0.5s forwards; opacity: 0.6; }
-        @keyframes flashG { 0%{bg-blue-800} 50%{background:#22c55e;border-color:#4ade80} 100%{background:#15803d;border-color:#22c55e} }
-        @keyframes flashR { 0%{bg-blue-800} 50%{background:#ef4444;border-color:#f87171} 100%{background:#991b1b;border-color:#ef4444} }
+        .correct-anim { animation: flashGreen 0.5s forwards; }
+        .wrong-anim { animation: flashRed 0.5s forwards; opacity: 0.6; }
 
-        .gold { background: linear-gradient(to bottom, #facc15, #a16207); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        @keyframes flashGreen {
+            0% { background-color: #1e40af; }
+            50% { background-color: #22c55e; border-color: #4ade80; box-shadow: 0 0 25px #22c55e; }
+            100% { background-color: #166534; border-color: #22c55e; }
+        }
+
+        @keyframes flashRed {
+            0% { background-color: #1e40af; }
+            50% { background-color: #ef4444; border-color: #f87171; box-shadow: 0 0 25px #ef4444; }
+            100% { background-color: #991b1b; border-color: #ef4444; }
+        }
+
+        .loader {
+            border: 2px solid rgba(255,255,255,0.1); border-top: 2px solid #fff; border-radius: 50%;
+            width: 14px; height: 14px; animation: spin 1s linear infinite; display: inline-block;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
-        /* Compact Scroll for explanations */
-        .scroller { overflow-y: auto; -webkit-overflow-scrolling: touch; }
-        .scroller::-webkit-scrollbar { width: 0; }
+        .gold-text {
+            background: linear-gradient(to bottom, #facc15, #a16207);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
     </style>
 </head>
-<body class="flex flex-col safe-area">
+<body class="flex flex-col items-center justify-center p-4 fixed inset-0">
 
-    <!-- HEADER -->
-    <header class="flex justify-between items-center px-4 py-2 h-[8dvh] shrink-0 z-20 bg-slate-900/50 backdrop-blur-sm border-b border-white/5">
-        <div>
-            <div class="text-[9px] text-slate-400 font-mono uppercase">Partita</div>
-            <div id="game-progress" class="font-bold text-white text-sm">0 / 5</div>
+    <header class="w-full max-w-md flex justify-between items-center mb-4 z-20 pt-safe-top">
+        <div class="flex flex-col">
+            <span class="text-[9px] text-slate-500 font-mono uppercase tracking-widest">Partita</span>
+            <span id="game-progress" class="font-bold text-white text-xs">0 / 5</span>
         </div>
-        <div class="text-right">
-            <div class="text-[9px] text-slate-400 font-mono uppercase">Vincita Sessione</div>
-            <div id="session-score" class="font-black text-lg text-yellow-400">€ 0</div>
+        <div class="flex flex-col items-end">
+            <span class="text-[9px] text-slate-500 font-mono uppercase tracking-widest">Totale Sessione</span>
+            <div id="session-score-display" class="font-black text-xl text-yellow-400 drop-shadow-[0_0_10px_rgba(250,204,21,0.6)]">€ 0</div>
         </div>
     </header>
 
-    <!-- MAIN CONTAINER -->
-    <main id="app" class="relative flex-1 w-full max-w-lg mx-auto overflow-hidden bg-slate-900/80 shadow-2xl md:border-x border-white/5">
+    <main id="app" class="w-full max-w-md bg-slate-900/80 backdrop-blur-xl rounded-3xl border border-slate-700/50 shadow-2xl h-full max-h-[850px] flex flex-col relative overflow-hidden transition-all">
         
-        <!-- MENU -->
-        <div id="scr-menu" class="absolute inset-0 flex flex-col p-6 z-10 bg-slate-900">
-            <div class="flex-1 flex flex-col justify-center text-center">
-                <h1 class="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-br from-indigo-300 via-white to-indigo-300 drop-shadow-lg tracking-tighter mb-2">LA<br>GHIGLIOTTINA</h1>
-                <p class="text-[9px] text-slate-500 uppercase tracking-[0.4em] font-bold">Safe Edition v10</p>
-            </div>
-            
-            <div class="space-y-3 mb-8 w-full">
-                <button id="btn-start" onclick="Game.checkQueue()" class="w-full py-5 bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl font-bold text-lg text-white shadow-lg active:scale-95 transition-all">
-                    GIOCA
-                </button>
-                <div class="flex gap-2">
-                    <button onclick="UI.modal('m-lb')" class="flex-1 py-3 bg-slate-800 rounded-xl text-xs font-bold text-slate-300 border border-slate-700"><i class="fas fa-trophy text-yellow-500 mr-1"></i> ALBO</button>
-                    <button onclick="UI.modal('m-set')" class="flex-1 py-3 bg-slate-800 rounded-xl text-xs font-bold text-slate-300 border border-slate-700"><i class="fas fa-robot text-blue-400 mr-1"></i> AI</button>
-                </div>
-            </div>
-
+        <div id="screen-menu" class="flex flex-col items-center justify-center h-full p-6 space-y-8 z-10">
             <div class="text-center">
-                <div class="flex justify-between text-[9px] text-slate-500 mb-1 px-1"><span id="q-stat">Vuoto</span><span>Munizioni</span></div>
-                <div class="w-full h-1 bg-slate-800 rounded-full overflow-hidden"><div id="q-bar" class="h-full bg-slate-600 w-0 transition-all"></div></div>
-            </div>
-        </div>
-
-        <!-- PAIRS (SCALATA) -->
-        <div id="scr-pairs" class="hidden absolute inset-0 flex-col p-4 bg-slate-900">
-            <div class="text-center shrink-0 mb-4">
-                <div class="text-2xl font-black text-white mb-1" id="money">€ 160.000</div>
-                <div class="h-1 w-full bg-slate-800 rounded-full mb-1"><div id="p-bar" class="h-full bg-blue-500 transition-all" style="width:20%"></div></div>
-                <div class="text-[9px] text-slate-500">COPPIA <span id="p-idx">1</span> DI 5</div>
-            </div>
-
-            <div class="flex-1 flex flex-col gap-3 min-h-0">
-                <div id="card-a" onclick="Game.pick(0)" class="ghig-card flex-1 w-full bg-blue-800 rounded-2xl text-2xl font-bold text-white relative overflow-hidden"><span class="relative z-10">A</span></div>
-                <div class="shrink-0 flex justify-center items-center h-4"><div class="h-px bg-slate-800 w-full absolute"></div><span class="bg-slate-900 px-2 text-[9px] text-slate-500 font-bold z-10">OPPURE</span></div>
-                <div id="card-b" onclick="Game.pick(1)" class="ghig-card flex-1 w-full bg-blue-800 rounded-2xl text-2xl font-bold text-white relative overflow-hidden"><span class="relative z-10">B</span></div>
+                <h1 class="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-br from-indigo-300 via-white to-indigo-300 drop-shadow-lg tracking-tighter leading-none mb-2">
+                    LA<br>GHIGLIOTTINA
+                </h1>
+                <p class="text-[9px] text-slate-500 tracking-[0.6em] uppercase font-bold">Championship Edition</p>
             </div>
             
-            <div id="fx-cut" class="absolute inset-0 bg-red-900/60 pointer-events-none opacity-0 flex items-center justify-center z-50 transition-opacity"><div class="text-3xl font-black text-white bg-red-600 px-6 py-2 -rotate-12 border-4 border-white shadow-xl">DIMEZZATO!</div></div>
-        </div>
-
-        <!-- FINAL (FILO ROSSO) -->
-        <div id="scr-final" class="hidden absolute inset-0 flex-col p-4 bg-slate-900">
-            <div class="flex justify-between items-center mb-2 shrink-0">
-                <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Il Filo Rosso</div>
-                <div class="flex items-center gap-2"><i class="fas fa-clock text-yellow-500"></i> <span id="timer" class="font-mono font-bold text-white">60</span></div>
-            </div>
-
-            <!-- Clue List - Optimized for space -->
-            <div id="clues" class="flex-1 flex flex-col gap-2 min-h-0 overflow-y-auto pb-2"></div>
-
-            <div class="shrink-0 pt-2 bg-slate-900 z-20">
-                <input type="text" id="inp" class="w-full bg-slate-950 border border-slate-700 text-yellow-400 text-center text-xl font-black py-3 rounded-xl focus:outline-none focus:border-yellow-500 placeholder-slate-800 uppercase mb-2" placeholder="LA TUA PAROLA" autocomplete="off">
-                <button onclick="Game.submit()" class="w-full py-3 bg-green-600 active:bg-green-700 text-white font-bold rounded-xl text-lg border-b-4 border-green-800">CONFERMA</button>
-            </div>
-        </div>
-
-        <!-- RESULT -->
-        <div id="scr-res" class="hidden absolute inset-0 z-30 bg-slate-900 flex-col p-6 text-center overflow-y-auto">
-            <div id="res-icon" class="text-6xl mb-2"></div>
-            <h2 id="res-title" class="text-3xl font-black text-white mb-1"></h2>
-            <p id="res-msg" class="text-xs text-slate-400 mb-4"></p>
-
-            <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 mb-4">
-                <p class="text-[9px] text-slate-500 uppercase font-bold mb-1">Soluzione</p>
-                <p id="res-sol" class="text-3xl font-black text-white"></p>
-            </div>
-
-            <div class="text-left w-full mb-1 text-[10px] text-slate-500 font-bold uppercase">Spiegazione</div>
-            <div id="res-exp" class="text-xs text-left bg-black/30 p-3 rounded-lg border border-white/5 space-y-2 mb-4"></div>
-
-            <button onclick="Game.next()" class="w-full py-4 bg-blue-600 text-white rounded-xl font-bold text-lg border-b-4 border-blue-800 mt-auto">AVANTI <i class="fas fa-arrow-right"></i></button>
-        </div>
-
-        <!-- SUMMARY -->
-        <div id="scr-sum" class="hidden absolute inset-0 z-40 bg-slate-950 flex-col items-center justify-center p-6 text-center">
-            <div class="text-xl font-bold text-slate-400 uppercase mb-4">Fine Sessione</div>
-            <div class="bg-slate-900 p-8 rounded-3xl border border-yellow-500/20 w-full mb-6">
-                <p class="text-[10px] text-slate-400 uppercase tracking-widest mb-2">Totale Vinto</p>
-                <p id="sum-tot" class="text-5xl font-black gold">€ 0</p>
-            </div>
-            <button onclick="UI.show('scr-menu')" class="w-full py-4 bg-slate-800 text-white rounded-xl font-bold border border-slate-600">MENU</button>
-        </div>
-
-        <!-- SETTINGS MODAL -->
-        <div id="m-set" class="hidden absolute inset-0 z-50 bg-slate-950 p-4 flex-col">
-            <div class="flex justify-between mb-4"><h2 class="font-bold text-white">Generatore</h2><button onclick="UI.closeModals()"><i class="fas fa-times text-slate-500"></i></button></div>
-            <div class="flex-1 overflow-y-auto space-y-4">
-                <div class="bg-slate-900 p-3 rounded-xl border border-slate-800">
-                    <label class="text-[9px] font-bold text-slate-400 uppercase block mb-1">1. API Key</label>
-                    <div class="flex gap-2"><input type="password" id="api-key" class="w-full bg-black border border-slate-700 rounded p-2 text-xs text-white" placeholder="Incolla Key..."><button onclick="AI.conn()" class="bg-blue-600 text-white px-3 rounded text-xs font-bold">OK</button></div>
+            <div class="w-full space-y-3">
+                <button id="btn-main-action" onclick="Game.checkAndStart()" class="w-full py-6 bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl font-bold text-xl text-white shadow-lg shadow-indigo-900/30 active:scale-95 transition-all border border-indigo-500/30 relative overflow-hidden group">
+                    <span id="btn-text">INIZIA SESSIONE</span>
+                    <div class="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                </button>
+                
+                <div class="grid grid-cols-2 gap-3">
+                    <button onclick="UI.toggleModal('modal-leaderboard')" class="py-4 bg-slate-800/80 rounded-xl font-bold text-xs text-slate-300 border border-slate-700 active:bg-slate-700 hover:border-slate-500 transition">
+                        <i class="fas fa-trophy text-yellow-500 mr-2"></i>ALBO D'ORO
+                    </button>
+                    <button onclick="UI.toggleModal('modal-settings')" class="py-4 bg-slate-800/80 rounded-xl font-bold text-xs text-slate-300 border border-slate-700 active:bg-slate-700 hover:border-slate-500 transition relative">
+                        <i class="fas fa-robot text-blue-400 mr-2"></i>AI MANAGER
+                        <div id="setup-badge" class="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-ping hidden"></div>
+                    </button>
                 </div>
-                <div class="bg-slate-900 p-3 rounded-xl border border-slate-800">
-                    <label class="text-[9px] font-bold text-slate-400 uppercase block mb-1">2. Modello & Genera</label>
-                    <select id="mod-sel" class="w-full bg-black border border-slate-700 text-white text-xs rounded p-2 mb-3"><option>Prima la Key...</option></select>
-                    <button id="btn-gen" onclick="AI.gen()" class="w-full py-3 bg-purple-600 rounded-lg text-white text-xs font-bold">SCARICA 5 PARTITE</button>
+            </div>
+            
+            <div class="text-center px-4">
+                <p id="queue-status" class="text-xs text-slate-400 mb-1">Stato Database</p>
+                <div class="w-full h-1 bg-slate-800 rounded-full mx-auto overflow-hidden">
+                    <div id="queue-bar" class="h-full bg-slate-600 w-0 transition-all duration-500"></div>
                 </div>
-                <div id="log" class="text-[9px] font-mono text-slate-500 bg-black p-2 rounded hidden h-20 overflow-y-auto"></div>
             </div>
         </div>
 
-        <!-- LEADERBOARD MODAL -->
-        <div id="m-lb" class="hidden absolute inset-0 z-50 bg-slate-950 p-4 flex-col">
-            <div class="flex justify-between mb-4"><h2 class="font-bold text-white text-yellow-500">Albo d'Oro</h2><button onclick="UI.closeModals()"><i class="fas fa-times text-slate-500"></i></button></div>
-            <div class="bg-slate-900 rounded-xl p-2 overflow-y-auto flex-1"><table class="w-full text-xs text-slate-300 text-left"><tbody id="lb-bod"></tbody></table></div>
+        <div id="screen-pairs" class="hidden flex-col h-full p-6">
+            <div class="text-center mb-6">
+                <div class="flex justify-between items-end mb-2 px-1">
+                    <span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Montepremi Attuale</span>
+                    <span id="current-game-money" class="text-xl font-black text-white">€ 160.000</span>
+                </div>
+                <div class="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                    <div id="pair-progress-bar" class="h-full bg-blue-500 transition-all duration-300" style="width: 20%"></div>
+                </div>
+                <p class="text-[9px] text-slate-500 mt-1 uppercase">Coppia <span id="pair-idx">1</span> di 5</p>
+            </div>
+
+            <div class="flex-1 flex flex-col justify-center gap-5 relative z-10 pb-12">
+                <div id="btn-a" onclick="Game.handlePairChoice(0)" class="ghigliottina-card w-full h-28 bg-blue-800 rounded-2xl flex items-center justify-center text-2xl font-bold border-b-4 border-blue-950 text-white select-none relative overflow-hidden">
+                    <span class="relative z-10">A</span>
+                </div>
+                
+                <div class="relative flex items-center justify-center">
+                    <div class="h-px bg-slate-800 w-full absolute"></div>
+                    <span class="bg-slate-900 px-3 text-slate-500 text-[10px] font-bold uppercase z-10 tracking-widest border border-slate-800 rounded-full">Oppure</span>
+                </div>
+
+                <div id="btn-b" onclick="Game.handlePairChoice(1)" class="ghigliottina-card w-full h-28 bg-blue-800 rounded-2xl flex items-center justify-center text-2xl font-bold border-b-4 border-blue-950 text-white select-none relative overflow-hidden">
+                    <span class="relative z-10">B</span>
+                </div>
+            </div>
+
+            <div id="fx-cut" class="absolute inset-0 bg-red-900/40 pointer-events-none opacity-0 flex items-center justify-center backdrop-blur-sm z-50 transition-opacity duration-300">
+                <div class="text-3xl font-black text-white bg-red-600 px-6 py-4 transform -rotate-6 shadow-2xl rounded-lg border-4 border-white">
+                    DIMEZZATO!
+                </div>
+            </div>
+        </div>
+
+        <div id="screen-final" class="hidden flex-col h-full p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-slate-500 text-[10px] uppercase font-bold tracking-widest">La Ghigliottina</h2>
+                <div class="relative flex items-center justify-center w-12 h-12">
+                    <svg class="transform -rotate-90 w-full h-full">
+                        <circle cx="24" cy="24" r="20" stroke="#1e293b" stroke-width="4" fill="transparent"/>
+                        <circle id="timer-svg" cx="24" cy="24" r="20" stroke="#facc15" stroke-width="4" fill="transparent" stroke-dasharray="125" stroke-dashoffset="0" stroke-linecap="round" class="transition-all duration-1000 linear"/>
+                    </svg>
+                    <span id="timer-val" class="absolute text-sm font-bold font-mono text-white">60</span>
+                </div>
+            </div>
+
+            <div class="flex flex-col gap-3 mb-6 flex-1 justify-center">
+                <div id="clue-box" class="space-y-3"></div>
+            </div>
+
+            <div class="mt-auto">
+                <input type="text" id="inp-final" class="w-full bg-slate-950 border border-slate-700 text-yellow-400 text-center text-2xl font-black py-4 rounded-xl focus:outline-none focus:border-yellow-500 placeholder-slate-800 uppercase tracking-widest mb-3" placeholder="..." autocomplete="off">
+                <button onclick="Game.submitFinal()" class="w-full py-4 bg-green-600 active:bg-green-700 text-white font-bold rounded-xl transition shadow-lg shadow-green-900/20 text-lg border-b-4 border-green-800">CONFERMA</button>
+            </div>
+        </div>
+
+        <div id="screen-result" class="hidden absolute inset-0 z-30 bg-slate-900/95 backdrop-blur-md flex-col items-center justify-center p-6 text-center animate-fade-in">
+            <div id="res-icon" class="text-7xl mb-4 drop-shadow-2xl"></div>
+            <h2 id="res-title" class="text-4xl font-black mb-2 text-white"></h2>
+            <p id="res-msg" class="text-slate-400 text-sm mb-8 font-medium"></p>
+
+            <div class="bg-slate-800 p-6 rounded-2xl w-full border border-slate-700 shadow-xl mb-6 relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-yellow-500 to-transparent"></div>
+                <p class="text-[10px] text-slate-500 uppercase tracking-widest mb-2 font-bold">Soluzione</p>
+                <p id="res-word" class="text-3xl font-black text-white tracking-wider"></p>
+            </div>
+            
+            <div id="res-explanations" class="text-xs text-left bg-black/40 p-4 rounded-xl w-full mb-6 space-y-2 max-h-40 overflow-y-auto border border-slate-700/50"></div>
+
+            <button onclick="Game.nextGame()" class="w-full py-4 bg-blue-600 text-white rounded-xl font-bold text-lg shadow-lg hover:bg-blue-500 border-b-4 border-blue-800">
+                CONTINUA SESSIONE <i class="fas fa-arrow-right ml-2"></i>
+            </button>
+        </div>
+
+        <div id="screen-summary" class="hidden absolute inset-0 z-40 bg-slate-950 flex-col items-center justify-center p-6 text-center animate-fade-in">
+            <h1 class="text-2xl font-bold text-slate-400 uppercase tracking-widest mb-4">Fine Sessione</h1>
+            
+            <div class="text-6xl mb-6">🏁</div>
+            
+            <div class="bg-gradient-to-br from-slate-900 to-slate-800 p-8 rounded-3xl border border-yellow-500/30 w-full mb-8 shadow-2xl relative overflow-hidden">
+                <div class="absolute -top-10 -right-10 w-32 h-32 bg-yellow-500/20 blur-3xl rounded-full"></div>
+                <p class="text-xs text-slate-400 uppercase tracking-[0.2em] mb-2">Totale Vinto</p>
+                <p id="sum-total" class="text-5xl font-black gold-text drop-shadow-sm">€ 0</p>
+            </div>
+
+            <p class="text-sm text-slate-500 mb-8">Il risultato è stato salvato nell'Albo d'Oro.</p>
+
+            <button onclick="UI.goHome()" class="w-full py-4 bg-slate-800 text-white rounded-xl font-bold text-sm hover:bg-slate-700 border border-slate-600">
+                TORNA AL MENU
+            </button>
+        </div>
+
+        <div id="modal-settings" class="hidden absolute inset-0 z-50 bg-slate-950 p-6 flex-col">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-lg font-bold text-white"><i class="fas fa-satellite-dish text-blue-500 mr-2"></i>Generatore Sessioni</h2>
+                <button onclick="UI.toggleModal('modal-settings')" class="text-slate-500 p-2 hover:text-white"><i class="fas fa-times fa-lg"></i></button>
+            </div>
+
+            <div class="flex-1 overflow-y-auto space-y-6">
+                <div id="status-box" class="bg-red-900/20 border border-red-500/50 p-4 rounded-xl text-center hidden">
+                    <p class="text-red-400 font-bold text-sm mb-1">NESSUNA SESSIONE PRONTA</p>
+                    <p class="text-slate-400 text-xs">Genera una nuova sessione da 5 partite per giocare.</p>
+                </div>
+
+                <div class="bg-slate-900 p-4 rounded-xl border border-slate-800">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase block mb-2">Google API Key</label>
+                    <div class="flex gap-2 mb-2">
+                        <input type="password" id="api-key" class="w-full bg-black border border-slate-700 rounded p-2 text-xs text-white focus:border-blue-500 outline-none" placeholder="Chiave API...">
+                        <button onclick="AI.fetchModels()" class="bg-blue-600 text-white px-3 rounded font-bold text-xs"><i class="fas fa-sync-alt"></i></button>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900 p-4 rounded-xl border border-slate-800">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase block mb-2">Nuova Sessione</label>
+                    <select id="model-select" class="w-full bg-black border border-slate-700 text-white text-xs rounded p-2 mb-3">
+                        <option>Connetti API Key prima...</option>
+                    </select>
+                    
+                    <button id="btn-gen" onclick="AI.generate()" class="w-full py-4 bg-gradient-to-r from-purple-700 to-indigo-600 rounded-lg font-bold text-white text-xs shadow-lg flex items-center justify-center gap-2 group">
+                        <i class="fas fa-layer-group group-hover:animate-bounce"></i> GENERA SESSIONE (5 PARTITE)
+                    </button>
+                    <p class="text-[9px] text-slate-500 mt-2 text-center">Genera sempre un pacchetto completo da 5.</p>
+                </div>
+                
+                <div id="gen-log" class="text-[9px] font-mono text-slate-500 h-20 overflow-y-auto bg-black p-2 rounded hidden border border-slate-800"></div>
+            </div>
+        </div>
+
+        <div id="modal-leaderboard" class="hidden absolute inset-0 z-50 bg-slate-950 p-6 flex-col">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-lg font-bold text-white text-yellow-500">Albo d'Oro Sessioni</h2>
+                <button onclick="UI.toggleModal('modal-leaderboard')" class="text-slate-500 p-2"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="flex-1 overflow-y-auto bg-slate-900 rounded-xl border border-slate-800 p-2">
+                <table class="w-full text-left text-xs text-slate-300">
+                    <thead class="bg-slate-950 text-slate-500"><tr class="border-b border-slate-800"><th class="p-2">Data</th><th class="p-2 text-right">Totale Vinto</th></tr></thead>
+                    <tbody id="lb-body"></tbody>
+                </table>
+                <div id="lb-empty" class="text-center text-slate-600 py-10 text-xs hidden">Nessuna sessione completata.</div>
+            </div>
         </div>
 
     </main>
 
     <script>
-        // INIT PWA
+        // --- PWA MANIFEST ---
         (function() {
-            const m={name:"Ghigliottina",display:"standalone",background_color:"#0f172a",theme_color:"#0f172a",icons:[{src:"https://cdn-icons-png.flaticon.com/512/2040/2040504.png",sizes:"512x512",type:"image/png"}]};
-            const l=document.createElement('link'); l.rel='manifest'; l.href=URL.createObjectURL(new Blob([JSON.stringify(m)],{type:'application/json'})); document.head.appendChild(l);
+            const m = {name: "Ghigliottina Championship", short_name: "Ghigliottina", start_url: ".", display: "standalone", background_color: "#0f172a", theme_color: "#0f172a", orientation: "portrait", icons: [{ "src": "https://cdn-icons-png.flaticon.com/512/2040/2040504.png", "sizes": "512x512", "type": "image/png" }]};
+            const link = document.createElement('link'); link.rel = 'manifest';
+            link.href = URL.createObjectURL(new Blob([JSON.stringify(m)], {type: 'application/manifest+json'}));
+            document.head.appendChild(link);
         })();
 
-        // DB
+        // --- DATABASE & SESSION MANAGEMENT ---
         const DB = {
-            q: [],
-            load() { const s=localStorage.getItem('g_q'); if(s) this.q=JSON.parse(s); this.ui(); },
-            set(g) {
-                // SANITIZER: Clean data before saving
-                const clean = g.map(game => {
-                    const sol = game.sol.toUpperCase().trim();
-                    game.pairs = game.pairs.map(p => {
-                        let okWord = p.ok.toUpperCase().trim();
-                        if(okWord.includes(sol)) okWord = okWord.replace(sol, '').replace(/\bD['’]\b|\bDI\b|\bDEL\b|\bDELLA\b/g, '').trim(); 
-                        if(!okWord || okWord.length < 2) okWord = "IND. NASCOSTO";
-                        return {...p, ok: okWord};
-                    });
-                    return game;
-                });
-                this.q=clean; localStorage.setItem('g_q',JSON.stringify(this.q));
-                localStorage.setItem('g_sc','0'); localStorage.setItem('g_pl','0');
-                this.ui();
+            queue: [], // Contains the 5 games
+            
+            init() {
+                const saved = localStorage.getItem('ghig_session_queue');
+                if (saved) this.queue = JSON.parse(saved);
+                this.updateUI();
             },
-            next() { if(!this.q.length)return null; const g=this.q.shift(); localStorage.setItem('g_q',JSON.stringify(this.q)); this.ui(); return g; },
-            ui() {
-                const n=this.q.length; const p=5-n;
-                document.getElementById('q-bar').style.width=(n/5*100)+'%';
-                document.getElementById('q-stat').innerText=n+"/5 CARICHE";
-                document.getElementById('btn-start').innerText=n>0?(p===0?"INIZIA":"CONTINUA"):"RICARICA";
-                document.getElementById('btn-start').className=n>0?"w-full py-5 bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl font-bold text-lg text-white shadow-lg":"w-full py-5 bg-slate-800 rounded-2xl font-bold text-slate-500 border border-slate-700";
-                document.getElementById('game-progress').innerText=p+" / 5";
-                const sc=parseInt(localStorage.getItem('g_sc')||0);
-                document.getElementById('session-score').innerText="€ "+sc.toLocaleString('it-IT');
-            }
-        };
 
-        // AI
-        const AI = {
-            k: localStorage.getItem('g_k')||'',
-            log(t,e){const l=document.getElementById('log');l.classList.remove('hidden');l.innerHTML+=`<div class="${e?'text-red-400':'text-green-400'}">> ${t}</div>`;l.scrollTop=l.scrollHeight;},
-            async conn(){
-                const v=document.getElementById('api-key').value.trim();
-                try{
-                    const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${v}`); if(!r.ok)throw new Error();
-                    const d=await r.json(); 
-                    const m=d.models.filter(x=>x.name.includes('gemini')&&x.supportedGenerationMethods.includes('generateContent')).map(x=>x.name);
-                    localStorage.setItem('g_k',v); this.k=v;
-                    const s=document.getElementById('mod-sel'); s.innerHTML='';
-                    m.forEach(n=>{const o=document.createElement('option');o.value=n;o.text=n.split('/').pop();s.appendChild(o)});
-                    alert('OK');
-                }catch(e){alert('Errore Key');}
-            },
-            async gen(){
-                if(!this.k)return alert('No Key');
-                const btn=document.getElementById('btn-gen'); btn.disabled=true; btn.innerText='GENERAZIONE...';
-                // PROMPT ULTRA-SPECIFICO
-                const p=`Genera un JSON array con 5 oggetti gioco.
-                Struttura esatta: 
-                [
-                  {
-                    "id": 1,
-                    "sol": "PAROLA_SOLUZIONE (Singola, Maiuscola)",
-                    "pairs": [
-                       {"a": "ParolaErrata1", "b": "ParolaGiusta1", "ok": "ParolaGiusta1 (SOLO LA PAROLA, NIENTE SPIEGAZIONI)"},
-                       ... (totale 5 coppie)
-                    ],
-                    "exp": ["Spiegazione breve del legame tra ParolaGiusta1 e Soluzione", ... (totale 5)]
-                  }
-                ]
-                IMPORTANTE: 
-                1. Il campo 'ok' DEVE contenere SOLO la parola indizio (es. 'SALA'), NON la frase 'Sala d'attesa'.
-                2. NON includere la parola soluzione nel campo 'ok'.
-                3. Italiano.`;
+            // Starts a FRESH session of 5 games
+            startNewSession(games) {
+                this.queue = games;
+                localStorage.setItem('ghig_session_queue', JSON.stringify(this.queue));
                 
-                try{
-                    const u=`https://generativelanguage.googleapis.com/v1beta/${document.getElementById('mod-sel').value}:generateContent?key=${this.k}`;
-                    const r=await fetch(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:p}]}]})});
-                    const d=await r.json(); 
-                    let tx=d.candidates[0].content.parts[0].text.replace(/```json|```/g,'').trim();
-                    const g=JSON.parse(tx).map(x=>({...x,id:Date.now()+Math.random()}));
-                    if(g.length!==5)throw new Error("Count Err");
-                    DB.set(g); this.log("Fatto",false); setTimeout(()=>UI.closeModals(),1000);
-                }catch(e){this.log(e.message,true);}finally{btn.disabled=false; btn.innerText='SCARICA';}
-            }
-        };
+                // Reset session tracking
+                localStorage.setItem('ghig_session_score', '0');
+                localStorage.setItem('ghig_games_played', '0');
+                
+                this.updateUI();
+            },
 
-        // GAME LOGIC
-        const Game = {
-            c:null, m:0, i:0, t:null,
-            checkQueue(){ if(!DB.q.length) { UI.modal('m-set'); document.getElementById('log').innerHTML="<div class='text-red-400'>Nessuna partita. Generane 5.</div>"; document.getElementById('log').classList.remove('hidden'); } else this.start(); },
-            start(){
-                this.c=DB.next(); if(!this.c)return;
-                this.m=160000; this.i=0;
-                UI.show('scr-pairs'); this.updM(); this.pair();
+            popNext() {
+                if (this.queue.length === 0) return null;
+                const game = this.queue[0]; // Take first
+                this.queue.shift(); // Remove
+                localStorage.setItem('ghig_session_queue', JSON.stringify(this.queue));
+                this.updateUI();
+                return game;
             },
-            updM(){ document.getElementById('money').innerText="€ "+this.m.toLocaleString('it-IT'); },
-            pair(){
-                if(this.i>=5)return this.final();
-                const p=this.c.pairs[this.i];
-                const ca=document.getElementById('card-a'); const cb=document.getElementById('card-b');
-                ca.className=cb.className="ghig-card flex-1 w-full bg-blue-800 rounded-2xl text-2xl font-bold text-white relative overflow-hidden";
-                ca.style.pointerEvents=cb.style.pointerEvents='auto';
-                if(Math.random()>.5){this.set(ca,p.a);this.set(cb,p.b);}else{this.set(ca,p.b);this.set(cb,p.a);}
-                document.getElementById('p-idx').innerText=this.i+1; document.getElementById('p-bar').style.width=((this.i)/5*100)+'%';
-            },
-            set(e,t){e.querySelector('span').innerText=t;e.dataset.w=t;},
-            pick(n){
-                const sel=n===0?document.getElementById('card-a'):document.getElementById('card-b');
-                const oth=n===0?document.getElementById('card-b'):document.getElementById('card-a');
-                const ok=this.c.pairs[this.i].ok;
-                document.getElementById('card-a').style.pointerEvents='none';
-                document.getElementById('card-b').style.pointerEvents='none';
-                
-                // Compare cleaned strings just in case
-                if(sel.dataset.w.toUpperCase() === ok.toUpperCase()){
-                    sel.classList.add('correct'); setTimeout(()=>{this.i++;this.pair();},600);
-                }else{
-                    sel.classList.add('wrong'); oth.classList.add('correct');
-                    this.m=Math.floor(this.m/2); this.updM();
-                    const fx=document.getElementById('fx-cut'); fx.classList.remove('opacity-0');
-                    setTimeout(()=>fx.classList.add('opacity-0'),800);
-                    setTimeout(()=>{this.i++;this.pair();},1000);
-                }
-            },
-            final(){
-                UI.show('scr-final'); 
-                const b=document.getElementById('clues'); b.innerHTML=''; document.getElementById('inp').value='';
-                this.c.pairs.forEach((p,k)=>{
-                    const d=document.createElement('div');
-                    d.className="bg-blue-900/40 border border-blue-500/30 rounded p-3 text-center text-xl font-bold text-blue-100 opacity-0 transform translate-x-4 transition-all duration-500 shrink-0";
-                    d.innerText=p.ok; d.style.transitionDelay=(k*100)+'ms'; b.appendChild(d);
-                    setTimeout(()=>d.classList.remove('opacity-0','translate-x-4'),50);
-                });
-                let sec=60; const tm=document.getElementById('timer');
-                if(this.t)clearInterval(this.t);
-                this.t=setInterval(()=>{
-                    sec--; tm.innerText=sec; if(sec<=10)tm.classList.add('text-red-500'); 
-                    if(sec<=0){clearInterval(this.t);this.end(false);}
-                },1000);
-            },
-            submit(){
-                const v=document.getElementById('inp').value.trim().toUpperCase(); if(!v)return;
-                clearInterval(this.t); this.end(v===this.c.sol.toUpperCase());
-            },
-            end(w){
-                UI.show('scr-res'); 
-                document.getElementById('res-sol').innerText=this.c.sol;
-                const b=document.getElementById('res-exp'); b.innerHTML='';
-                
-                // Detailed Explanation Logic
-                this.c.pairs.forEach((p,k)=>{
-                    b.innerHTML += `<div class="mb-2 border-b border-white/10 pb-1">
-                        <span class="text-blue-400 font-bold">${p.ok}</span> 
-                        <span class="text-slate-500 text-[10px]">➜</span> 
-                        <span class="text-white">${this.c.exp[k]}</span>
-                    </div>`;
-                });
 
-                const t=document.getElementById('res-title');
-                const msg=document.getElementById('res-msg');
-                const ico=document.getElementById('res-icon');
-                if(w){
-                    t.innerText="VITTORIA!"; t.className="text-4xl font-black text-green-500 mb-1";
-                    msg.innerText=`Hai vinto € ${this.m.toLocaleString()}`; ico.innerText="🏆";
-                    this.saveSess(this.m);
+            updateUI() {
+                const count = this.queue.length;
+                const played = 5 - count;
+                const bar = document.getElementById('queue-bar');
+                const btnTxt = document.getElementById('btn-text');
+                const btn = document.getElementById('btn-main-action');
+                const qStatus = document.getElementById('queue-status');
+                
+                // Visualizzazione progresso sessione
+                let pct = (count / 5) * 100; 
+                bar.style.width = pct + '%';
+                
+                if (count > 0) {
+                    const savedScore = parseInt(localStorage.getItem('ghig_session_score') || 0);
+                    btnTxt.textContent = (played === 0) ? "INIZIA SESSIONE" : "CONTINUA SESSIONE";
+                    qStatus.textContent = `${count} PARTITE RIMANENTI`;
+                    bar.className = "h-full bg-blue-500 transition-all duration-500";
+                    btn.className = "w-full py-6 bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl font-bold text-xl text-white shadow-lg active:scale-95 transition-all group";
+                    
+                    document.getElementById('game-progress').textContent = `${played} / 5 Completate`;
+                    document.getElementById('session-score-display').textContent = "€ " + savedScore.toLocaleString('it-IT');
                 } else {
-                    t.innerText="PECCATO"; t.className="text-4xl font-black text-red-500 mb-1";
-                    msg.innerText=`Persi € ${this.m.toLocaleString()}`; ico.innerText="💀";
-                    this.saveSess(0);
+                    btnTxt.textContent = "GENERA NUOVA SESSIONE";
+                    qStatus.textContent = "SESSIONE ESAURITA";
+                    bar.className = "h-full bg-slate-700 transition-all duration-500";
+                    btn.className = "w-full py-6 bg-slate-800 rounded-2xl font-bold text-xl text-slate-400 border border-slate-700 active:scale-95 transition-all";
+                    
+                    document.getElementById('game-progress').textContent = "5 / 5 Completate";
+                }
+            }
+        };
+
+        // --- AI ENGINE ---
+        const AI = {
+            key: localStorage.getItem('ghig_key') || '',
+            models: [],
+            
+            log(m, err=false) {
+                const l = document.getElementById('gen-log'); l.classList.remove('hidden');
+                l.innerHTML += `<div class="${err?'text-red-400':'text-green-400'}">> ${m}</div>`;
+                l.scrollTop = l.scrollHeight;
+            },
+
+            async fetchModels() {
+                const k = document.getElementById('api-key').value.trim();
+                if(k.length<5) return alert("Key non valida");
+                try {
+                    const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${k}`);
+                    if(!r.ok) throw new Error("Key errata");
+                    const d = await r.json();
+                    this.models = d.models.filter(m => m.supportedGenerationMethods.includes('generateContent') && m.name.includes('gemini')).map(m=>m.name);
+                    localStorage.setItem('ghig_key', k); this.key = k;
+                    this.populateSelect();
+                    alert("Connesso!");
+                } catch(e) { alert("Errore: "+e.message); }
+            },
+
+            populateSelect() {
+                const sel = document.getElementById('model-select'); sel.innerHTML = '';
+                const pref = this.models.find(m=>m.includes('flash-latest')) || this.models[0];
+                this.models.forEach(m => {
+                    const opt = document.createElement('option');
+                    opt.value = m; opt.text = m.replace('models/', '');
+                    if(m===pref) opt.selected=true;
+                    sel.appendChild(opt);
+                });
+            },
+
+            async generate() {
+                if(!this.key) return alert("Collega API Key");
+                const model = document.getElementById('model-select').value;
+                const btn = document.getElementById('btn-gen');
+                
+                btn.disabled = true;
+                btn.innerHTML = '<span class="loader mr-2"></span> Generazione Sessione...';
+
+                // HARDCODED TO 5 AS REQUESTED
+                const prompt = `Genera un JSON array con ESATTAMENTE 5 partite per "La Ghigliottina". 
+                Struttura: [{"id": 0, "sol": "PAROLA", "pairs": [{"a":"Errata","b":"Giusta","ok":"Giusta"} (x5)], "exp": ["Spiegazione1" (x5)]}]
+                Regole: Italiano. Soluzione Maiuscola.`;
+
+                try {
+                    const url = `https://generativelanguage.googleapis.com/v1beta/${model}:generateContent?key=${this.key}`;
+                    const r = await fetch(url, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }) });
+                    if(!r.ok) throw new Error("Errore API");
+                    const d = await r.json();
+                    let txt = d.candidates[0].content.parts[0].text.replace(/```json|```/g, '').trim();
+                    const games = JSON.parse(txt).map(x => ({...x, id: Date.now()+Math.random()}));
+                    
+                    if (games.length !== 5) throw new Error("L'AI non ha generato 5 partite. Riprova.");
+
+                    DB.startNewSession(games);
+                    
+                    this.log(`Sessione pronta! 5 partite caricate.`, false);
+                    setTimeout(() => { UI.toggleModal('modal-settings'); }, 1000);
+                } catch(e) { this.log(e.message, true); } 
+                finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-layer-group"></i> GENERA SESSIONE (5 PARTITE)'; }
+            }
+        };
+
+        // --- GAME LOGIC ---
+        const Game = {
+            curr: null, money: 0, idx: 0, timer: null,
+            
+            checkAndStart() {
+                if (DB.queue.length === 0) {
+                    UI.toggleModal('modal-settings');
+                    document.getElementById('status-box').classList.remove('hidden');
+                } else {
+                    this.start();
                 }
             },
-            saveSess(am){
-                const c=parseInt(localStorage.getItem('g_sc')||0)+am; localStorage.setItem('g_sc',c);
-                const pl=parseInt(localStorage.getItem('g_pl')||0)+1; localStorage.setItem('g_pl',pl);
-                DB.ui();
+
+            start() {
+                this.curr = DB.popNext(); 
+                if (!this.curr) return;
+                
+                this.money = 160000;
+                this.idx = 0;
+                
+                // UI Refresh
+                document.getElementById('current-game-money').textContent = "€ 160.000";
+                UI.show('pairs');
+                this.loadPair();
             },
-            next(){ if(!DB.q.length) this.finish(); else this.start(); },
-            finish(){
-                UI.show('scr-sum');
-                const tot=localStorage.getItem('g_sc');
-                document.getElementById('sum-tot').innerText="€ "+parseInt(tot).toLocaleString();
-                const l=JSON.parse(localStorage.getItem('g_lb')||'[]');
-                l.push({d:new Date().toLocaleDateString(),m:parseInt(tot)}); l.sort((a,b)=>b.m-a.m);
-                localStorage.setItem('g_lb',JSON.stringify(l.slice(0,10))); UI.updLb();
+            
+            loadPair() {
+                if(this.idx >= 5) return this.startFinal();
+                const p = this.curr.pairs[this.idx];
+                const btnA = document.getElementById('btn-a');
+                const btnB = document.getElementById('btn-b');
+                
+                [btnA, btnB].forEach(b => {
+                    b.className = "ghigliottina-card w-full h-28 bg-blue-800 rounded-2xl flex items-center justify-center text-2xl font-bold border-b-4 border-blue-950 text-white select-none relative overflow-hidden";
+                    b.style.pointerEvents = 'auto';
+                });
+
+                if(Math.random()>0.5) { this.setBtn(btnA, p.a); this.setBtn(btnB, p.b); }
+                else { this.setBtn(btnA, p.b); this.setBtn(btnB, p.a); }
+
+                document.getElementById('pair-idx').textContent = this.idx + 1;
+                document.getElementById('pair-progress-bar').style.width = ((this.idx)/5*100)+'%';
+            },
+
+            setBtn(el, txt) { el.querySelector('span').textContent = txt; el.dataset.w = txt; },
+
+            handlePairChoice(i) {
+                const sel = i===0 ? document.getElementById('btn-a') : document.getElementById('btn-b');
+                const other = i===0 ? document.getElementById('btn-b') : document.getElementById('btn-a');
+                const ok = this.curr.pairs[this.idx].ok;
+                
+                document.getElementById('btn-a').style.pointerEvents = 'none';
+                document.getElementById('btn-b').style.pointerEvents = 'none';
+
+                if(sel.dataset.w === ok) {
+                    sel.classList.add('correct-anim');
+                    setTimeout(() => { this.idx++; this.loadPair(); }, 600);
+                } else {
+                    sel.classList.add('wrong-anim');
+                    other.classList.add('correct-anim');
+                    this.money = Math.floor(this.money/2);
+                    document.getElementById('current-game-money').textContent = "€ " + this.money.toLocaleString('it-IT');
+                    
+                    const fx = document.getElementById('fx-cut');
+                    fx.classList.remove('opacity-0');
+                    setTimeout(() => fx.classList.add('opacity-0'), 1000);
+                    setTimeout(() => { this.idx++; this.loadPair(); }, 1200);
+                }
+            },
+
+            startFinal() {
+                UI.show('final');
+                document.getElementById('inp-final').value = '';
+                const box = document.getElementById('clue-box');
+                box.innerHTML = '';
+                this.curr.pairs.forEach((p,i) => {
+                    const el = document.createElement('div');
+                    el.className = "py-3 text-center rounded-lg font-bold text-lg text-blue-100 opacity-0 transform translate-x-10 transition-all duration-500 border border-blue-500/30 bg-blue-900/40";
+                    el.textContent = p.ok;
+                    el.style.transitionDelay = (i*150)+'ms';
+                    box.appendChild(el);
+                    setTimeout(() => el.classList.remove('opacity-0', 'translate-x-10'), 50);
+                });
+
+                let t = 60;
+                const svg = document.getElementById('timer-svg');
+                const txt = document.getElementById('timer-val');
+                svg.style.strokeDashoffset = 0;
+                if(this.timer) clearInterval(this.timer);
+                this.timer = setInterval(() => {
+                    t--; txt.textContent = t;
+                    svg.style.strokeDashoffset = 125 - (t/60*125);
+                    if(t<=10) svg.setAttribute('stroke', '#ef4444');
+                    if(t<=0) { clearInterval(this.timer); this.end(false); }
+                }, 1000);
+            },
+
+            submitFinal() {
+                const v = document.getElementById('inp-final').value.trim().toUpperCase();
+                if(!v) return;
+                clearInterval(this.timer);
+                this.end(v === this.curr.sol);
+            },
+
+            end(win) {
+                UI.show('result');
+                document.getElementById('res-word').textContent = this.curr.sol;
+                const exp = document.getElementById('res-explanations');
+                exp.innerHTML = '';
+                this.curr.exp.forEach((e,i) => {
+                    exp.innerHTML += `<div class="mb-2 pb-2 border-b border-white/10 last:border-0"><span class="text-blue-400 font-bold">${this.curr.pairs[i].ok}</span> <span class="text-slate-500 text-[10px]">➜</span> <span class="text-slate-300 italic">${e}</span></div>`;
+                });
+
+                const t = document.getElementById('res-title');
+                const m = document.getElementById('res-msg');
+                const ic = document.getElementById('res-icon');
+                
+                let winAmount = 0;
+
+                if(win) {
+                    winAmount = this.money;
+                    t.textContent = "CAMPIONE!"; t.className = "text-4xl font-black mb-2 text-green-400";
+                    m.textContent = `Vinti € ${this.money.toLocaleString()}!`;
+                    ic.innerHTML = "🏆";
+                } else {
+                    t.textContent = "PECCATO!"; t.className = "text-4xl font-black mb-2 text-red-500";
+                    m.textContent = `Persi € ${this.money.toLocaleString()}.`;
+                    ic.innerHTML = "💀";
+                }
+                
+                // UPDATE SESSION SCORE
+                this.updateSessionScore(winAmount);
+            },
+
+            updateSessionScore(amount) {
+                let current = parseInt(localStorage.getItem('ghig_session_score') || 0);
+                current += amount;
+                localStorage.setItem('ghig_session_score', current);
+                
+                let played = parseInt(localStorage.getItem('ghig_games_played') || 0);
+                played += 1;
+                localStorage.setItem('ghig_games_played', played);
+
+                // Update Header
+                document.getElementById('session-score-display').textContent = "€ " + current.toLocaleString('it-IT');
+            },
+
+            nextGame() {
+                // Check if queue empty (Session finished)
+                if (DB.queue.length === 0) {
+                    this.finishSession();
+                } else {
+                    this.start();
+                }
+            },
+
+            finishSession() {
+                const total = parseInt(localStorage.getItem('ghig_session_score') || 0);
+                
+                // Show Summary Screen
+                UI.show('summary');
+                document.getElementById('sum-total').textContent = "€ " + total.toLocaleString('it-IT');
+                
+                // Save to Leaderboard
+                this.saveToLeaderboard(total);
+                
+                // Reset session for UI purposes (logic handled by new generation)
+                localStorage.setItem('ghig_session_score', '0');
+                localStorage.setItem('ghig_games_played', '0');
+            },
+
+            saveToLeaderboard(score) {
+                const lb = JSON.parse(localStorage.getItem('ghig_lb_session') || '[]');
+                lb.push({ d: new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString().slice(0,5), m: score });
+                lb.sort((a,b) => b.m - a.m);
+                localStorage.setItem('ghig_lb_session', JSON.stringify(lb.slice(0,10)));
+                UI.updateLb();
             }
         };
 
         const UI = {
-            show(id){ ['scr-menu','scr-pairs','scr-final','scr-res','scr-sum'].forEach(x=>document.getElementById(x).classList.add('hidden')); document.getElementById(id).classList.remove('hidden'); if(id==='scr-final') document.getElementById(id).style.display='flex'; },
-            modal(id){ document.getElementById(id).classList.remove('hidden'); document.getElementById(id).classList.add('flex'); if(id==='m-set'&&AI.k){document.getElementById('api-key').value=AI.k;AI.conn();} },
-            closeModals(){ document.querySelectorAll('[id^="m-"]').forEach(x=>x.classList.add('hidden')); },
-            updLb(){ const l=JSON.parse(localStorage.getItem('g_lb')||'[]'); const b=document.getElementById('lb-bod'); b.innerHTML=''; l.forEach(r=>b.innerHTML+=`<tr><td class="p-2 border-b border-slate-800">${r.d}</td><td class="p-2 border-b border-slate-800 text-right text-yellow-500">€${r.m.toLocaleString()}</td></tr>`); }
+            show(id) {
+                ['menu','pairs','final','result','summary'].forEach(s => document.getElementById('screen-'+s).classList.add('hidden', 'flex') && document.getElementById('screen-'+s).classList.remove('flex'));
+                document.getElementById('screen-'+id).classList.remove('hidden'); document.getElementById('screen-'+id).classList.add('flex');
+            },
+            toggleModal(id) {
+                const el = document.getElementById(id);
+                if(el.classList.contains('hidden')) {
+                    el.classList.remove('hidden'); el.classList.add('flex');
+                    if(id === 'modal-settings' && AI.key) {
+                         document.getElementById('api-key').value = AI.key;
+                         AI.fetchModels(); 
+                    }
+                } else {
+                    el.classList.add('hidden'); el.classList.remove('flex');
+                }
+            },
+            goHome() { 
+                this.show('menu'); 
+                DB.updateUI(); // Refresh state
+            },
+            updateLb() {
+                const lb = JSON.parse(localStorage.getItem('ghig_lb_session') || '[]');
+                const b = document.getElementById('lb-body'); b.innerHTML = '';
+                if(lb.length) {
+                    document.getElementById('lb-empty').classList.add('hidden');
+                    lb.forEach(r => b.innerHTML += `<tr class="border-b border-slate-800"><td class="p-2 font-bold text-white text-[10px]">${r.d}</td><td class="p-2 text-right text-yellow-500 font-mono">€ ${r.m.toLocaleString()}</td></tr>`);
+                } else document.getElementById('lb-empty').classList.remove('hidden');
+            }
         };
 
-        // BOOT
-        DB.load(); UI.updLb();
+        // INIT
+        DB.init();
+        UI.updateLb();
+        if(!AI.key) document.getElementById('setup-badge').classList.remove('hidden');
+        document.getElementById('inp-final').addEventListener('keypress', e => { if(e.key==='Enter') Game.submitFinal(); });
+
     </script>
 </body>
 </html>
-
-
