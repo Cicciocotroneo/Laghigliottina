@@ -190,10 +190,7 @@
                     const sol = game.sol.toUpperCase().trim();
                     game.pairs = game.pairs.map(p => {
                         let okWord = p.ok.toUpperCase().trim();
-                        // 1. If multiple words, keep it (could be 'Sala da Pranzo'), BUT check solution
-                        // 2. Remove solution if present
                         if(okWord.includes(sol)) okWord = okWord.replace(sol, '').replace(/\bD['’]\b|\bDI\b|\bDEL\b|\bDELLA\b/g, '').trim(); 
-                        // 3. Fallback: If empty after clean, use "???"
                         if(!okWord || okWord.length < 2) okWord = "IND. NASCOSTO";
                         return {...p, ok: okWord};
                     });
@@ -213,7 +210,6 @@
                 document.getElementById('game-progress').innerText=p+" / 5";
                 const sc=parseInt(localStorage.getItem('g_sc')||0);
                 document.getElementById('session-score').innerText="€ "+sc.toLocaleString('it-IT');
-                document.getElementById('session-score-display').innerText="€ "+sc.toLocaleString('it-IT');
             }
         };
 
