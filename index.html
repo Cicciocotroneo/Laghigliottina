@@ -327,72 +327,76 @@
         };
 
         // --- AI ENGINE ---
+                // AI ENGINE 2.0 (High Variance)
         const AI = {
-            key: localStorage.getItem('ghig_key') || '',
-            models: [],
-            
-            log(m, err=false) {
-                const l = document.getElementById('gen-log'); l.classList.remove('hidden');
-                l.innerHTML += `<div class="${err?'text-red-400':'text-green-400'}">> ${m}</div>`;
-                l.scrollTop = l.scrollHeight;
+            k: localStorage.getItem('g_k')||'',
+            log(t,e){const l=document.getElementById('log');l.classList.remove('hidden');l.innerHTML+=`<div class="${e?'text-red-400':'text-green-400'}">> ${t}</div>`;l.scrollTop=l.scrollHeight;},
+            async conn(){
+                const v=document.getElementById('api-key').value.trim();
+                try{
+                    const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${v}`); if(!r.ok)throw new Error();
+                    const d=await r.json(); 
+                    const m=d.models.filter(x=>x.name.includes('gemini')&&x.supportedGenerationMethods.includes('generateContent')).map(x=>x.name);
+                    localStorage.setItem('g_k',v); this.k=v;
+                    const s=document.getElementById('mod-sel'); s.innerHTML='';
+                    m.forEach(n=>{const o=document.createElement('option');o.value=n;o.text=n.split('/').pop();s.appendChild(o)});
+                    alert('OK');
+                }catch(e){alert('Errore Key');}
             },
-
-            async fetchModels() {
-                const k = document.getElementById('api-key').value.trim();
-                if(k.length<5) return alert("Key non valida");
-                try {
-                    const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${k}`);
-                    if(!r.ok) throw new Error("Key errata");
-                    const d = await r.json();
-                    this.models = d.models.filter(m => m.supportedGenerationMethods.includes('generateContent') && m.name.includes('gemini')).map(m=>m.name);
-                    localStorage.setItem('ghig_key', k); this.key = k;
-                    this.populateSelect();
-                    alert("Connesso!");
-                } catch(e) { alert("Errore: "+e.message); }
-            },
-
-            populateSelect() {
-                const sel = document.getElementById('model-select'); sel.innerHTML = '';
-                const pref = this.models.find(m=>m.includes('flash-latest')) || this.models[0];
-                this.models.forEach(m => {
-                    const opt = document.createElement('option');
-                    opt.value = m; opt.text = m.replace('models/', '');
-                    if(m===pref) opt.selected=true;
-                    sel.appendChild(opt);
-                });
-            },
-
-            async generate() {
-                if(!this.key) return alert("Collega API Key");
-                const model = document.getElementById('model-select').value;
-                const btn = document.getElementById('btn-gen');
+            async gen(){
+                if(!this.k)return alert('No Key');
+                const btn=document.getElementById('btn-gen'); btn.disabled=true; btn.innerText='GENERAZIONE...';
                 
-                btn.disabled = true;
-                btn.innerHTML = '<span class="loader mr-2"></span> Generazione Sessione...';
+                // 1. LISTA DI TEMI PER VARIARE (Entropy Injection)
+                const themes = [
+                    "oggetti di uso quotidiano ma specifici", "concetti astratti filosofici", "termini legati alla natura o geografia",
+                    "parole legate al cibo o cucina", "termini scientifici o tecnici semplici", "colori o materiali",
+                    "parti del corpo o vestiario", "azioni o verbi di movimento", "mestieri o ruoli sociali",
+                    "animali o esseri viventi", "musica, arte o spettacolo", "viaggi o mezzi di trasporto"
+                ];
+                // 2. LIVELLI DI DIFFICOLTA'
+                const diffs = ["facili e comuni", "di media difficoltà", "difficili e ricercate", "un mix di facili e difficili"];
+                
+                // 3. SELEZIONE CASUALE
+                const rndTheme = themes[Math.floor(Math.random() * themes.length)];
+                const rndDiff = diffs[Math.floor(Math.random() * diffs.length)];
 
-                // HARDCODED TO 5 AS REQUESTED
-                const prompt = `Genera un JSON array con ESATTAMENTE 5 partite per "La Ghigliottina". 
-                Struttura: [{"id": 0, "sol": "PAROLA", "pairs": [{"a":"Errata","b":"Giusta","ok":"Giusta"} (x5)], "exp": ["Spiegazione1" (x5)]}]
-                Regole: Italiano. Soluzione Maiuscola.`;
+                // 4. PROMPT DINAMICO
+                const p=`Genera un JSON array con 5 oggetti gioco per "La Ghigliottina".
+                
+                OBIETTIVO CREATIVO: In questa sessione usa parole soluzione legate a: "${rndTheme}".
+                LIVELLO: Le parole devono essere ${rndDiff}. Evita parole soluzione banali già usate spesso (come Casa, Vita, Tempo). Sii originale.
 
-                try {
-                    const url = `https://generativelanguage.googleapis.com/v1beta/${model}:generateContent?key=${this.key}`;
-                    const r = await fetch(url, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }) });
-                    if(!r.ok) throw new Error("Errore API");
-                    const d = await r.json();
-                    let txt = d.candidates[0].content.parts[0].text.replace(/```json|```/g, '').trim();
-                    const games = JSON.parse(txt).map(x => ({...x, id: Date.now()+Math.random()}));
-                    
-                    if (games.length !== 5) throw new Error("L'AI non ha generato 5 partite. Riprova.");
-
-                    DB.startNewSession(games);
-                    
-                    this.log(`Sessione pronta! 5 partite caricate.`, false);
-                    setTimeout(() => { UI.toggleModal('modal-settings'); }, 1000);
-                } catch(e) { this.log(e.message, true); } 
-                finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-layer-group"></i> GENERA SESSIONE (5 PARTITE)'; }
+                Struttura esatta JSON: 
+                [
+                  {
+                    "id": 1,
+                    "sol": "PAROLA_SOLUZIONE (Singola, Maiuscola)",
+                    "pairs": [
+                       {"a": "ParolaErrata1", "b": "ParolaGiusta1", "ok": "ParolaGiusta1 (SOLO LA PAROLA, NIENTE SPIEGAZIONI)"},
+                       ... (totale 5 coppie)
+                    ],
+                    "exp": ["Spiegazione breve del legame", ... (totale 5)]
+                  }
+                ]
+                
+                IMPORTANTE: 
+                1. Il campo 'ok' DEVE contenere SOLO la parola indizio, NON la frase intera.
+                2. NON includere MAI la parola soluzione nel campo 'ok'.
+                3. Italiano corretto.`;
+                
+                try{
+                    const u=`https://generativelanguage.googleapis.com/v1beta/${document.getElementById('mod-sel').value}:generateContent?key=${this.k}`;
+                    const r=await fetch(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:p}]}]})});
+                    const d=await r.json(); 
+                    let tx=d.candidates[0].content.parts[0].text.replace(/```json|```/g,'').trim();
+                    const g=JSON.parse(tx).map(x=>({...x,id:Date.now()+Math.random()}));
+                    if(g.length!==5)throw new Error("Count Err");
+                    DB.set(g); this.log("Fatto: "+rndTheme, false); setTimeout(()=>UI.closeModals(),1000);
+                }catch(e){this.log(e.message,true);}finally{btn.disabled=false; btn.innerText='SCARICA';}
             }
         };
+
 
         // --- GAME LOGIC ---
         const Game = {
