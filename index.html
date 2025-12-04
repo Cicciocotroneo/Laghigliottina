@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Ghigliottina v13</title>
+    <title>Ghigliottina v14 Classic</title>
     
     <!-- PWA -->
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -78,7 +78,7 @@
         <div id="scr-menu" class="full-screen-layer active p-6">
             <div class="flex-1 flex flex-col justify-center text-center">
                 <h1 class="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-br from-indigo-300 via-white to-indigo-300 drop-shadow-lg tracking-tighter mb-2">LA<br>GHIGLIOTTINA</h1>
-                <p class="text-[9px] text-slate-500 uppercase tracking-[0.4em] font-bold">Stable v13</p>
+                <p class="text-[9px] text-slate-500 uppercase tracking-[0.4em] font-bold">Classic TV v14</p>
             </div>
             
             <div class="space-y-3 mb-8 w-full">
@@ -194,6 +194,7 @@
                     const sol = game.sol.toUpperCase().trim();
                     game.pairs = game.pairs.map(p => {
                         let okWord = p.ok.toUpperCase().trim();
+                        // Anti-Spoiler Aggressivo
                         if(okWord.includes(sol)) {
                             okWord = okWord.replace(sol, '').trim();
                             okWord = okWord.replace(/\b(DI|DEL|DELLA|DELLO|DEGLI|D'|DA|CON|SU|PER|TRA|FRA)$/i, '').trim();
@@ -221,6 +222,7 @@
             }
         };
 
+        // --- NEW AI LOGIC (CLASSIC TV STYLE) ---
         const AI = {
             k: localStorage.getItem('g_k')||'',
             log(t,e){const l=document.getElementById('log');l.classList.remove('hidden');l.innerHTML+=`<div class="${e?'text-red-400':'text-green-400'}">> ${t}</div>`;l.scrollTop=l.scrollHeight;},
@@ -240,29 +242,34 @@
                 if(!this.k)return alert('No Key');
                 const btn=document.getElementById('btn-gen'); btn.disabled=true; btn.innerText='GENERAZIONE...';
                 
-                const themes = ["oggetti casa","natura/animali","cibi/cucina","concetti astratti","mestieri","geografia","corpo/moda","scienza/tecnica","arte/musica","sport"];
-                const diffs = ["facili","medie","difficili","miste"];
-                const rndT = themes[Math.floor(Math.random()*themes.length)];
-                const rndD = diffs[Math.floor(Math.random()*diffs.length)];
+                // PROMPT TV CLASSICO
+                const p=`Agisci come autore del gioco TV "L'Eredità". Crea 5 partite di "Ghigliottina".
+                
+                REGOLE TASSATIVE PER OGNI PARTITA:
+                1. "sol": La soluzione. Deve essere un SOSTANTIVO o AGGETTIVO comune (Es: "NOTTE", "VITA", "TAVOLO"). MAIUSCOLO.
+                2. "pairs": 5 coppie di parole.
+                   - "ok": Parola indizio. Deve legarsi alla soluzione tramite:
+                     * PAROLE COMPOSTE (es: "Uomo" -> "Ragno")
+                     * MODI DI DIRE (es: "Chi dorme non piglia..." -> "Pesci")
+                     * TITOLI (Film, Libri)
+                     * SINONIMI/CONTRARI (es: "Buio" -> "Luce")
+                   - "a" o "b": Parola distrattrice. Deve essere PLAUSIBILE ma ERRATA. Non un sinonimo dell'indizio, ma una parola che potrebbe sembrare giusta a prima vista.
+                3. DIVIETO ASSOLUTO DI FRASI. Solo parole SINGOLE.
+                4. "ok" NON deve mai contenere la parola soluzione.
 
-                const p=`Genera un JSON array con 5 oggetti gioco per "La Ghigliottina".
-                Tema: ${rndT}. Difficoltà: ${rndD}.
-                Struttura esatta: 
+                JSON Output Array:
                 [
                   {
                     "id": 1,
-                    "sol": "PAROLA_SOLUZIONE (Singola, Maiuscola)",
+                    "sol": "PAROLA_SOLUZIONE",
                     "pairs": [
-                       {"a": "ParolaErrata", "b": "ParolaGiusta", "ok": "ParolaGiusta (SOLO UNA PAROLA)"},
-                       ... (totale 5 coppie)
+                       {"a": "Distrattore1", "b": "Indizio1", "ok": "Indizio1"},
+                       {"a": "Indizio2", "b": "Distrattore2", "ok": "Indizio2"},
+                       ... (5 coppie)
                     ],
-                    "exp": ["Spiegazione breve", ... (totale 5)]
+                    "exp": ["Spiegazione1 (es: Uomo Ragno)", "Spiegazione2", ...]
                   }
-                ]
-                REGOLE: 
-                1. 'ok' DEVE contenere SOLO la parola indizio (es. 'SALA'), MAI la frase 'Sala d'attesa'.
-                2. NON mettere MAI la soluzione nel campo 'ok'.
-                3. Italiano.`;
+                ]`;
                 
                 try{
                     const u=`https://generativelanguage.googleapis.com/v1beta/${document.getElementById('mod-sel').value}:generateContent?key=${this.k}`;
@@ -271,7 +278,7 @@
                     let tx=d.candidates[0].content.parts[0].text.replace(/```json|```/g,'').trim();
                     const g=JSON.parse(tx).map(x=>({...x,id:Date.now()+Math.random()}));
                     if(g.length!==5)throw new Error("Count Err");
-                    DB.set(g); this.log(`Fatto (${rndT})`,false); setTimeout(()=>UI.closeModals(),1000);
+                    DB.set(g); this.log("Fatto",false); setTimeout(()=>UI.closeModals(),1000);
                 }catch(e){this.log(e.message,true);}finally{btn.disabled=false; btn.innerText='SCARICA';}
             }
         };
@@ -281,13 +288,12 @@
             checkQueue(){ if(!DB.q.length) { UI.modal('m-set'); document.getElementById('log').innerHTML="<div class='text-red-400'>Nessuna partita. Generane 5.</div>"; document.getElementById('log').classList.remove('hidden'); } else this.start(); },
             
             start(){
-                this.cleanBoard(); // PULIZIA SCHERMATA CRUCIALE
+                this.cleanBoard();
                 this.c=DB.next(); if(!this.c)return;
                 this.m=160000; this.i=0;
                 UI.show('scr-pairs'); this.updM(); this.pair();
             },
 
-            // FIX: Usa l'ID corretto 'res-sol' e controlla l'esistenza
             cleanBoard(){
                 const cl = document.getElementById('clues'); if(cl) cl.innerHTML = '';
                 const re = document.getElementById('res-exp'); if(re) re.innerHTML = '';
