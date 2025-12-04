@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Ghigliottina v16.1</title>
+    <title>Ghigliottina v17</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
@@ -46,8 +46,8 @@
 
         .gold { background: linear-gradient(to bottom, #facc15, #a16207); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         
-        .mini-pill { font-size: 10px; padding: 4px 8px; border-radius: 99px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); white-space: nowrap; text-transform: uppercase; }
-        .mini-pill.found { background: #22c55e; border-color: #4ade80; color: white; font-weight: bold; }
+        .mini-pill { font-size: 11px; padding: 4px 10px; border-radius: 6px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); white-space: nowrap; text-transform: uppercase; font-weight: bold; color: #94a3b8; }
+        .mini-pill.found { background: #22c55e; border-color: #4ade80; color: white; box-shadow: 0 0 10px rgba(34, 197, 94, 0.4); }
     </style>
 </head>
 <body class="flex flex-col safe-area">
@@ -59,7 +59,7 @@
             <div id="game-progress" class="font-bold text-white text-sm">0 / 5</div>
         </div>
         <div class="text-right">
-            <div class="text-[9px] text-slate-400 font-mono uppercase">Montepremi Totale</div>
+            <div class="text-[9px] text-slate-400 font-mono uppercase">Montepremi</div>
             <div id="session-score" class="font-black text-lg text-yellow-400">€ 0</div>
         </div>
     </header>
@@ -71,7 +71,7 @@
         <div id="scr-menu" class="absolute inset-0 flex flex-col p-6 z-10 bg-slate-900">
             <div class="flex-1 flex flex-col justify-center text-center">
                 <h1 class="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-br from-indigo-300 via-white to-indigo-300 drop-shadow-lg tracking-tighter mb-2">LA<br>GHIGLIOTTINA</h1>
-                <p class="text-[9px] text-slate-500 uppercase tracking-[0.4em] font-bold">Version 16.1</p>
+                <p class="text-[9px] text-slate-500 uppercase tracking-[0.4em] font-bold">Version 17.0</p>
             </div>
             
             <div class="space-y-3 mb-8 w-full">
@@ -80,8 +80,9 @@
                     <div class="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition"></div>
                 </button>
                 <div class="flex gap-2">
-                    <button onclick="UI.modal('m-lb')" class="flex-1 py-3 bg-slate-800 rounded-xl text-xs font-bold text-slate-300 border border-slate-700 active:bg-slate-700 uppercase">🏆 ALBO</button>
-                    <button onclick="UI.modal('m-set')" class="flex-1 py-3 bg-slate-800 rounded-xl text-xs font-bold text-slate-300 border border-slate-700 active:bg-slate-700 uppercase">🤖 AI SETUP</button>
+                    <!-- ID CHIARI E DISTINTI -->
+                    <button onclick="UI.modal('modal-leaderboard')" class="flex-1 py-3 bg-slate-800 rounded-xl text-xs font-bold text-slate-300 border border-slate-700 active:bg-slate-700 uppercase hover:border-slate-500 transition">🏆 ALBO</button>
+                    <button onclick="UI.modal('modal-ai')" class="flex-1 py-3 bg-slate-800 rounded-xl text-xs font-bold text-slate-300 border border-slate-700 active:bg-slate-700 uppercase hover:border-slate-500 transition">🤖 AI SETUP</button>
                 </div>
             </div>
 
@@ -91,12 +92,14 @@
             </div>
         </div>
 
-        <!-- 2. PAIRS -->
+        <!-- 2. PAIRS (SCALATA) -->
         <div id="scr-pairs" class="hidden absolute inset-0 flex-col p-4 bg-slate-900">
             <div class="text-center shrink-0 mb-2">
                 <div class="text-2xl font-black text-white mb-1" id="money">€ 160.000</div>
-                <div class="h-1 w-full bg-slate-800 rounded-full mb-2"><div id="p-bar" class="h-full bg-blue-500 transition-all" style="width:20%"></div></div>
-                <div class="flex flex-wrap justify-center gap-1 min-h-[24px]" id="mini-recap"></div>
+                <div class="h-1 w-full bg-slate-800 rounded-full mb-3"><div id="p-bar" class="h-full bg-blue-500 transition-all" style="width:20%"></div></div>
+                
+                <!-- MINI RECAP PAROLE -->
+                <div class="flex flex-wrap justify-center gap-2 min-h-[28px]" id="mini-recap"></div>
             </div>
 
             <div class="flex-1 flex flex-col gap-3 min-h-0 py-2">
@@ -150,8 +153,8 @@
             <button onclick="UI.show('scr-menu')" class="w-full py-4 bg-slate-800 text-white rounded-xl font-bold border border-slate-600 hover:bg-slate-700 uppercase">TORNA AL MENU</button>
         </div>
 
-        <!-- MODALS -->
-        <div id="m-set" class="hidden absolute inset-0 z-[100] bg-slate-950 p-4 flex-col animate-fade-in">
+        <!-- MODAL AI -->
+        <div id="modal-ai" class="hidden absolute inset-0 z-[100] bg-slate-950 p-4 flex-col animate-fade-in">
             <div class="flex justify-between mb-4"><h2 class="font-bold text-white uppercase">Generatore</h2><button onclick="UI.closeModals()"><i class="fas fa-times text-slate-500"></i></button></div>
             <div class="flex-1 overflow-y-auto space-y-4">
                 <div class="bg-slate-900 p-3 rounded-xl border border-slate-800">
@@ -159,7 +162,7 @@
                     <div class="flex gap-2"><input type="password" id="api-key" class="w-full bg-black border border-slate-700 rounded p-2 text-xs text-white" placeholder="Incolla Key..."><button onclick="AI.conn()" class="bg-blue-600 text-white px-3 rounded text-xs font-bold">OK</button></div>
                 </div>
                 <div class="bg-slate-900 p-3 rounded-xl border border-slate-800">
-                    <label class="text-[9px] font-bold text-slate-400 uppercase block mb-1">2. Genera Nuovi Giochi</label>
+                    <label class="text-[9px] font-bold text-slate-400 uppercase block mb-1">2. Modello & Genera</label>
                     <select id="mod-sel" class="w-full bg-black border border-slate-700 text-white text-xs rounded p-2 mb-3"><option>Prima la Key...</option></select>
                     <button id="btn-gen" onclick="AI.gen()" class="w-full py-4 bg-purple-600 rounded-lg text-white text-xs font-bold shadow-lg uppercase">SCARICA 5 PARTITE</button>
                 </div>
@@ -167,7 +170,8 @@
             </div>
         </div>
 
-        <div id="m-lb" class="hidden absolute inset-0 z-[100] bg-slate-950 p-4 flex-col animate-fade-in">
+        <!-- MODAL ALBO -->
+        <div id="modal-leaderboard" class="hidden absolute inset-0 z-[100] bg-slate-950 p-4 flex-col animate-fade-in">
             <div class="flex justify-between mb-4"><h2 class="font-bold text-white text-yellow-500 uppercase">Albo d'Oro</h2><button onclick="UI.closeModals()"><i class="fas fa-times text-slate-500"></i></button></div>
             <div class="bg-slate-900 rounded-xl p-2 overflow-y-auto flex-1 border border-slate-800"><table class="w-full text-xs text-slate-300 text-left"><tbody id="lb-bod"></tbody></table></div>
         </div>
@@ -175,22 +179,41 @@
     </main>
 
     <script>
+        // PWA INIT
         (function() {
             const m={name:"Ghigliottina",display:"standalone",background_color:"#0f172a",theme_color:"#0f172a",icons:[{src:"https://cdn-icons-png.flaticon.com/512/2040/2040504.png",sizes:"512x512",type:"image/png"}]};
             const l=document.createElement('link'); l.rel='manifest'; l.href=URL.createObjectURL(new Blob([JSON.stringify(m)],{type:'application/json'})); document.head.appendChild(l);
         })();
 
+        // HELPER SICUREZZA DOM
+        function safeText(id, text) { const el = document.getElementById(id); if(el) el.innerText = text; }
+        function safeHTML(id, html) { const el = document.getElementById(id); if(el) el.innerHTML = html; }
+
+        // DB WITH SELF-HEALING
         const DB = {
             q: [],
-            load() { const s=localStorage.getItem('g_q'); if(s) this.q=JSON.parse(s); this.ui(); },
+            load() { 
+                try {
+                    const s = localStorage.getItem('g_q'); 
+                    if(s) this.q = JSON.parse(s); 
+                    if(!Array.isArray(this.q)) throw new Error("DB Corrotto");
+                } catch(e) {
+                    console.error("Self-Healing: Resetting corrupted DB");
+                    localStorage.removeItem('g_q');
+                    this.q = [];
+                }
+                this.ui(); 
+            },
             set(g) {
+                // SANITIZER: MAIUSCOLO + PULIZIA
                 const clean = g.map(game => {
-                    const sol = game.sol.toUpperCase().trim();
-                    game.pairs = game.pairs.map(p => {
-                        let okWord = p.ok.toUpperCase().trim();
-                        if(okWord.includes(sol)) okWord = okWord.replace(sol, '...').trim();
+                    const sol = (game.sol || "").toUpperCase().trim();
+                    game.pairs = (game.pairs || []).map(p => {
+                        let okWord = (p.ok || "").toUpperCase().trim();
+                        // Anti-Spoiler
+                        if(okWord.includes(sol) && sol.length > 2) okWord = okWord.replace(sol, '...').trim();
                         if(!okWord || okWord.length < 2) okWord = "NASCOSTO";
-                        return {a: p.a.toUpperCase().trim(), b: p.b.toUpperCase().trim(), ok: okWord};
+                        return {a: (p.a||"").toUpperCase().trim(), b: (p.b||"").toUpperCase().trim(), ok: okWord};
                     });
                     return game;
                 });
@@ -201,19 +224,26 @@
             next() { if(!this.q.length)return null; const g=this.q.shift(); localStorage.setItem('g_q',JSON.stringify(this.q)); this.ui(); return g; },
             ui() {
                 const n=this.q.length; const p=5-n;
-                document.getElementById('q-bar').style.width=(n/5*100)+'%';
-                document.getElementById('q-stat').innerText=n+"/5 CARICHE";
+                const bar = document.getElementById('q-bar'); if(bar) bar.style.width=(n/5*100)+'%';
+                safeText('q-stat', n+"/5 CARICHE");
+                
                 const btn = document.getElementById('btn-start');
-                const span = btn.querySelector('span');
-                span.innerText=n>0?(p===0?"INIZIA SESSIONE":"CONTINUA"):"RICARICA PARTITE";
-                if(n===0) {
-                    btn.className="w-full py-5 bg-slate-800 rounded-2xl font-bold text-slate-500 border border-slate-700 cursor-not-allowed";
-                } else {
-                    btn.className="w-full py-5 bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl font-bold text-lg text-white shadow-lg active:scale-95 transition-all relative group overflow-hidden uppercase tracking-widest";
+                if(btn) {
+                    const span = btn.querySelector('span');
+                    if(span) span.innerText=n>0?(p===0?"INIZIA SESSIONE":"CONTINUA"):"RICARICA PARTITE";
+                    
+                    if(n===0) {
+                        btn.className="w-full py-5 bg-slate-800 rounded-2xl font-bold text-slate-500 border border-slate-700 cursor-not-allowed";
+                        btn.onclick = () => UI.modal('modal-ai'); // Redirect to AI if empty
+                    } else {
+                        btn.className="w-full py-5 bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl font-bold text-lg text-white shadow-lg active:scale-95 transition-all relative group overflow-hidden uppercase tracking-widest";
+                        btn.onclick = () => Game.checkQueue();
+                    }
                 }
-                document.getElementById('game-progress').innerText=p+" / 5";
-                const sc=parseInt(localStorage.getItem('g_sc')||0);
-                const el=document.getElementById('session-score'); if(el) el.innerText="€ "+sc.toLocaleString('it-IT');
+
+                safeText('game-progress', p+" / 5");
+                const sc = parseInt(localStorage.getItem('g_sc')||0);
+                safeText('session-score', "€ "+sc.toLocaleString('it-IT'));
             }
         };
 
@@ -279,7 +309,7 @@
 
         const Game = {
             c:null, m:0, i:0, t:null, collected:[],
-            checkQueue(){ if(!DB.q.length) { UI.modal('m-set'); document.getElementById('log').innerHTML="<div class='text-red-400'>Nessuna partita. Generane 5.</div>"; document.getElementById('log').classList.remove('hidden'); } else this.start(); },
+            checkQueue(){ if(!DB.q.length) { UI.modal('modal-ai'); document.getElementById('log').innerHTML="<div class='text-red-400'>Nessuna partita. Generane 5.</div>"; document.getElementById('log').classList.remove('hidden'); } else this.start(); },
             
             start(){
                 this.clean();
@@ -290,20 +320,20 @@
             },
 
             clean(){
-                document.getElementById('clues').innerHTML=''; document.getElementById('res-exp').innerHTML='';
-                document.getElementById('res-sol').innerText=''; document.getElementById('mini-recap').innerHTML='';
+                safeHTML('clues',''); safeHTML('res-exp','');
+                safeText('res-sol',''); safeHTML('mini-recap','');
             },
 
-            updM(){ document.getElementById('money').innerText="€ "+this.m.toLocaleString('it-IT'); },
+            updM(){ safeText('money', "€ "+this.m.toLocaleString('it-IT')); },
             
             renderRecap(){
-                const el = document.getElementById('mini-recap');
+                const el = document.getElementById('mini-recap'); if(!el) return;
                 el.innerHTML = '';
                 for(let k=0; k<5; k++){
                     const word = this.collected[k];
                     const span = document.createElement('span');
                     span.className = word ? "mini-pill found" : "mini-pill";
-                    span.innerText = word || "?";
+                    span.innerText = word || (k+1);
                     el.appendChild(span);
                 }
             },
@@ -314,7 +344,8 @@
                 const ca=document.getElementById('card-a'); const cb=document.getElementById('card-b');
                 [ca,cb].forEach(c=>{ c.className="ghig-card flex-1 w-full rounded-2xl text-2xl font-bold text-white relative overflow-hidden bg-blue-800 border-b-4 border-blue-950 uppercase"; c.style.pointerEvents='auto'; });
                 if(Math.random()>.5){this.set(ca,p.a);this.set(cb,p.b);}else{this.set(ca,p.b);this.set(cb,p.a);}
-                document.getElementById('p-bar').style.width=((this.i)/5*100)+'%';
+                const bar = document.getElementById('p-bar'); if(bar) bar.style.width=((this.i)/5*100)+'%';
+                safeText('p-idx', this.i+1);
             },
             
             set(e,t){e.querySelector('span').innerText=t;e.dataset.w=t;},
@@ -333,8 +364,7 @@
                     sel.classList.add('wrong'); oth.classList.add('correct');
                     this.m=Math.floor(this.m/2); this.updM();
                     this.collected.push(ok);
-                    const fx=document.getElementById('fx-cut'); fx.classList.remove('opacity-0');
-                    setTimeout(()=>fx.classList.add('opacity-0'),800);
+                    const fx=document.getElementById('fx-cut'); if(fx){ fx.classList.remove('opacity-0'); setTimeout(()=>fx.classList.add('opacity-0'),800); }
                 }
                 
                 this.renderRecap();
@@ -369,7 +399,7 @@
             
             end(w){
                 UI.show('scr-res'); 
-                document.getElementById('res-sol').innerText=this.c.sol;
+                safeText('res-sol', this.c.sol);
                 const b=document.getElementById('res-exp'); b.innerHTML='';
                 this.c.pairs.forEach((p,k)=>{
                     b.innerHTML += `<div class="mb-3 border-b border-white/10 pb-2"><span class="text-blue-400 font-bold block mb-1 uppercase">${p.ok}</span><span class="text-slate-300 italic text-[11px] leading-tight block">${this.c.exp[k]}</span></div>`;
@@ -394,10 +424,14 @@
             next(){ if(!DB.q.length) this.finish(); else this.start(); },
             finish(){
                 UI.show('scr-sum');
-                const tot=parseInt(localStorage.getItem('g_sc')||0);
-                document.getElementById('sum-tot').innerText="€ "+tot.toLocaleString('it-IT');
-                const l=JSON.parse(localStorage.getItem('g_lb')||'[]');
-                l.push({d:new Date().toLocaleDateString("it-IT"), m:tot}); 
+                const tot=localStorage.getItem('g_sc');
+                safeText('sum-tot', "€ "+parseInt(tot).toLocaleString());
+                
+                // SAFE SAVE TO LEADERBOARD
+                let l = [];
+                try { l = JSON.parse(localStorage.getItem('g_lb')||'[]'); } catch(e){ l=[]; }
+                
+                l.push({d:new Date().toLocaleDateString("it-IT"), m:parseInt(tot)}); 
                 l.sort((a,b)=>b.m-a.m);
                 localStorage.setItem('g_lb',JSON.stringify(l.slice(0,10))); UI.updLb();
             }
@@ -405,25 +439,32 @@
 
         const UI = {
             show(id){
-                ['scr-menu','scr-pairs','scr-final','scr-res','scr-sum'].forEach(x=>document.getElementById(x).classList.add('hidden')); 
-                document.getElementById(id).classList.remove('hidden');
-                if(id!=='scr-menu') document.getElementById(id).classList.add('flex');
+                ['scr-menu','scr-pairs','scr-final','scr-res','scr-sum'].forEach(x=>{
+                    const el = document.getElementById(x);
+                    if(el) el.classList.add('hidden');
+                });
+                const t = document.getElementById(id);
+                if(t) { t.classList.remove('hidden'); if(id!=='scr-menu') t.classList.add('flex'); }
             },
-            modal(id){ document.getElementById(id).classList.remove('hidden'); document.getElementById(id).classList.add('flex'); if(id==='m-set'&&AI.k){document.getElementById('api-key').value=AI.k;AI.conn();} },
-            closeModals(){ document.querySelectorAll('[id^="m-"]').forEach(x=>x.classList.add('hidden')); },
+            modal(id){ document.getElementById(id).classList.remove('hidden'); document.getElementById(id).classList.add('flex'); if(id==='modal-ai'&&AI.k){document.getElementById('api-key').value=AI.k;AI.conn();} },
+            closeModals(){ document.querySelectorAll('[id^="modal-"]').forEach(x=>x.classList.add('hidden')); },
             
-            // FIX ALBO GENERATION: SAFETY CHECK FOR NUMBER
+            // ROBUST LEADERBOARD RENDERING
             updLb(){ 
-                const l=JSON.parse(localStorage.getItem('g_lb')||'[]'); 
-                const b=document.getElementById('lb-bod'); 
+                let l = [];
+                try { l = JSON.parse(localStorage.getItem('g_lb')||'[]'); } catch(e){ localStorage.removeItem('g_lb'); }
+                
+                const b=document.getElementById('lb-bod'); if(!b)return;
                 b.innerHTML=''; 
                 l.forEach(r=>{
-                    const mVal = (typeof r.m === 'number' && !isNaN(r.m)) ? r.m : 0;
-                    b.innerHTML+=`<tr><td class="p-2 border-b border-slate-800 text-[10px]">${r.d}</td><td class="p-2 border-b border-slate-800 text-right text-yellow-500 font-mono">€ ${mVal.toLocaleString('it-IT')}</td></tr>`;
+                    const mVal = (typeof r.m === 'number') ? r.m : 0;
+                    const dVal = r.d || "-";
+                    b.innerHTML+=`<tr><td class="p-2 border-b border-slate-800 text-[10px]">${dVal}</td><td class="p-2 border-b border-slate-800 text-right text-yellow-500 font-mono">€${mVal.toLocaleString('it-IT')}</td></tr>`;
                 }); 
             }
         };
 
+        // BOOT
         DB.load(); UI.updLb();
     </script>
 </body>
