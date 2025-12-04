@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Ghigliottina v14 Classic</title>
+    <title>Ghigliottina v15</title>
     
-    <!-- PWA -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#020617">
+    <meta name="theme-color" content="#0f172a">
     <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/2040/2040504.png">
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -20,7 +19,7 @@
 
         body {
             font-family: 'Montserrat', sans-serif;
-            background-color: #020617;
+            background: radial-gradient(circle at center, #0f172a 0%, #000000 100%);
             color: white;
             height: 100dvh; width: 100vw;
             overflow: hidden; overscroll-behavior: none;
@@ -31,13 +30,13 @@
 
         .ghig-card {
             background-color: #1e40af;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5); 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5); 
             border: 1px solid rgba(255,255,255,0.1);
             display: flex; align-items: center; justify-content: center;
             transition: transform 0.1s;
-            position: relative; z-index: 10;
+            position: relative;
         }
-        .ghig-card:active { transform: scale(0.98); }
+        .ghig-card:active { transform: scale(0.96); }
 
         .correct { animation: flashG 0.5s forwards; }
         .wrong { animation: flashR 0.5s forwards; opacity: 0.6; }
@@ -46,48 +45,43 @@
 
         .gold { background: linear-gradient(to bottom, #facc15, #a16207); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         
-        .full-screen-layer {
-            position: absolute; inset: 0; 
-            background-color: #0f172a;
-            z-index: 0; display: none; flex-direction: column;
-        }
-        .full-screen-layer.active { display: flex; z-index: 50; }
-
-        .scroller { overflow-y: auto; -webkit-overflow-scrolling: touch; }
-        .scroller::-webkit-scrollbar { width: 0; }
+        /* Recap pills style */
+        .mini-pill { font-size: 10px; padding: 4px 8px; border-radius: 99px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); white-space: nowrap; }
+        .mini-pill.found { background: #22c55e; border-color: #4ade80; color: white; font-weight: bold; }
     </style>
 </head>
 <body class="flex flex-col safe-area">
 
     <!-- HEADER -->
-    <header class="flex justify-between items-center px-4 py-2 h-[8dvh] shrink-0 z-[60] bg-slate-950 border-b border-white/5 relative">
+    <header class="flex justify-between items-center px-4 py-2 h-[8dvh] shrink-0 z-20 bg-slate-900/80 border-b border-white/10 backdrop-blur-md">
         <div>
             <div class="text-[9px] text-slate-400 font-mono uppercase">Partita</div>
             <div id="game-progress" class="font-bold text-white text-sm">0 / 5</div>
         </div>
         <div class="text-right">
-            <div class="text-[9px] text-slate-400 font-mono uppercase">Vincita Sessione</div>
+            <div class="text-[9px] text-slate-400 font-mono uppercase">Montepremi Totale</div>
             <div id="session-score" class="font-black text-lg text-yellow-400">€ 0</div>
         </div>
     </header>
 
-    <!-- MAIN CONTAINER -->
-    <main id="app" class="relative flex-1 w-full max-w-lg mx-auto overflow-hidden bg-slate-900 shadow-2xl md:border-x border-white/5">
+    <!-- APP WRAPPER -->
+    <main class="relative flex-1 w-full max-w-lg mx-auto overflow-hidden bg-slate-900 shadow-2xl md:border-x border-white/5">
         
-        <!-- MENU -->
-        <div id="scr-menu" class="full-screen-layer active p-6">
+        <!-- 1. MENU -->
+        <div id="scr-menu" class="absolute inset-0 flex flex-col p-6 z-10 bg-slate-900">
             <div class="flex-1 flex flex-col justify-center text-center">
                 <h1 class="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-br from-indigo-300 via-white to-indigo-300 drop-shadow-lg tracking-tighter mb-2">LA<br>GHIGLIOTTINA</h1>
-                <p class="text-[9px] text-slate-500 uppercase tracking-[0.4em] font-bold">Classic TV v14</p>
+                <p class="text-[9px] text-slate-500 uppercase tracking-[0.4em] font-bold">Version 15.0</p>
             </div>
             
             <div class="space-y-3 mb-8 w-full">
-                <button id="btn-start" onclick="Game.checkQueue()" class="w-full py-5 bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl font-bold text-lg text-white shadow-lg active:scale-95 transition-all">
-                    GIOCA
+                <button id="btn-start" onclick="Game.checkQueue()" class="w-full py-5 bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl font-bold text-lg text-white shadow-lg active:scale-95 transition-all relative group overflow-hidden">
+                    <span class="relative z-10">GIOCA</span>
+                    <div class="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition"></div>
                 </button>
                 <div class="flex gap-2">
-                    <button onclick="UI.modal('m-lb')" class="flex-1 py-3 bg-slate-800 rounded-xl text-xs font-bold text-slate-300 border border-slate-700"><i class="fas fa-trophy text-yellow-500 mr-1"></i> ALBO</button>
-                    <button onclick="UI.modal('m-set')" class="flex-1 py-3 bg-slate-800 rounded-xl text-xs font-bold text-slate-300 border border-slate-700"><i class="fas fa-robot text-blue-400 mr-1"></i> AI</button>
+                    <button onclick="UI.modal('m-lb')" class="flex-1 py-3 bg-slate-800 rounded-xl text-xs font-bold text-slate-300 border border-slate-700 active:bg-slate-700">🏆 ALBO</button>
+                    <button onclick="UI.modal('m-set')" class="flex-1 py-3 bg-slate-800 rounded-xl text-xs font-bold text-slate-300 border border-slate-700 active:bg-slate-700">🤖 AI SETUP</button>
                 </div>
             </div>
 
@@ -97,25 +91,29 @@
             </div>
         </div>
 
-        <!-- PAIRS (SCALATA) -->
-        <div id="scr-pairs" class="full-screen-layer p-4">
-            <div class="text-center shrink-0 mb-4">
+        <!-- 2. PAIRS (SCALATA) -->
+        <div id="scr-pairs" class="hidden absolute inset-0 flex-col p-4 bg-slate-900">
+            <div class="text-center shrink-0 mb-2">
                 <div class="text-2xl font-black text-white mb-1" id="money">€ 160.000</div>
-                <div class="h-1 w-full bg-slate-800 rounded-full mb-1"><div id="p-bar" class="h-full bg-blue-500 transition-all" style="width:20%"></div></div>
-                <div class="text-[9px] text-slate-500">COPPIA <span id="p-idx">1</span> DI 5</div>
+                <div class="h-1 w-full bg-slate-800 rounded-full mb-2"><div id="p-bar" class="h-full bg-blue-500 transition-all" style="width:20%"></div></div>
+                
+                <!-- MINI RECAP REQUESTED -->
+                <div class="flex flex-wrap justify-center gap-1 min-h-[24px]" id="mini-recap">
+                    <!-- Pills injected here -->
+                </div>
             </div>
 
-            <div class="flex-1 flex flex-col gap-3 min-h-0 relative z-10">
+            <div class="flex-1 flex flex-col gap-3 min-h-0 py-2">
                 <div id="card-a" onclick="Game.pick(0)" class="ghig-card flex-1 w-full rounded-2xl text-2xl font-bold text-white relative overflow-hidden"><span class="relative z-10">A</span></div>
-                <div class="shrink-0 flex justify-center items-center h-4"><div class="h-px bg-slate-800 w-full absolute"></div><span class="bg-slate-900 px-2 text-[9px] text-slate-500 font-bold z-10 border border-slate-700 rounded-full">OPPURE</span></div>
+                <div class="shrink-0 flex justify-center items-center h-6"><span class="bg-slate-800 px-3 py-1 rounded-full text-[10px] text-slate-500 font-bold border border-slate-700">OPPURE</span></div>
                 <div id="card-b" onclick="Game.pick(1)" class="ghig-card flex-1 w-full rounded-2xl text-2xl font-bold text-white relative overflow-hidden"><span class="relative z-10">B</span></div>
             </div>
             
             <div id="fx-cut" class="absolute inset-0 bg-red-900/80 pointer-events-none opacity-0 flex items-center justify-center z-50 transition-opacity backdrop-blur-sm"><div class="text-3xl font-black text-white bg-red-600 px-6 py-4 -rotate-12 border-4 border-white shadow-2xl">DIMEZZATO!</div></div>
         </div>
 
-        <!-- FINAL (FILO ROSSO) -->
-        <div id="scr-final" class="full-screen-layer p-4">
+        <!-- 3. FINAL (FILO ROSSO) -->
+        <div id="scr-final" class="hidden absolute inset-0 flex-col p-4 bg-slate-900">
             <div class="flex justify-between items-center mb-2 shrink-0">
                 <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Il Filo Rosso</div>
                 <div class="flex items-center gap-2"><i class="fas fa-clock text-yellow-500"></i> <span id="timer" class="font-mono font-bold text-white">60</span></div>
@@ -124,36 +122,36 @@
             <div id="clues" class="flex-1 flex flex-col gap-2 min-h-0 overflow-y-auto pb-2"></div>
 
             <div class="shrink-0 pt-2 z-20">
-                <input type="text" id="inp" class="w-full bg-slate-950 border border-slate-700 text-yellow-400 text-center text-xl font-black py-3 rounded-xl focus:outline-none focus:border-yellow-500 placeholder-slate-800 uppercase mb-2" placeholder="LA TUA PAROLA" autocomplete="off">
-                <button onclick="Game.submit()" class="w-full py-3 bg-green-600 active:bg-green-700 text-white font-bold rounded-xl text-lg border-b-4 border-green-800 shadow-lg">CONFERMA</button>
+                <input type="text" id="inp" class="w-full bg-slate-950 border border-slate-700 text-yellow-400 text-center text-xl font-black py-4 rounded-xl focus:outline-none focus:border-yellow-500 placeholder-slate-800 uppercase mb-2" placeholder="LA TUA PAROLA" autocomplete="off">
+                <button onclick="Game.submit()" class="w-full py-4 bg-green-600 active:bg-green-700 text-white font-bold rounded-xl text-lg border-b-4 border-green-800 shadow-lg">CONFERMA</button>
             </div>
         </div>
 
-        <!-- RESULT -->
-        <div id="scr-res" class="full-screen-layer p-6 text-center overflow-y-auto">
+        <!-- 4. RESULT -->
+        <div id="scr-res" class="hidden absolute inset-0 z-30 bg-slate-900 flex-col p-6 text-center overflow-y-auto">
             <div id="res-icon" class="text-6xl mb-2"></div>
             <h2 id="res-title" class="text-3xl font-black text-white mb-1"></h2>
-            <p id="res-msg" class="text-xs text-slate-400 mb-4"></p>
+            <p id="res-msg" class="text-xs text-slate-400 mb-6"></p>
 
-            <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 mb-4 shadow-lg">
+            <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 mb-6 shadow-lg">
                 <p class="text-[9px] text-slate-500 uppercase font-bold mb-1">Soluzione</p>
                 <p id="res-sol" class="text-3xl font-black text-white tracking-widest"></p>
             </div>
 
-            <div class="text-left w-full mb-1 text-[10px] text-slate-500 font-bold uppercase">Spiegazione</div>
-            <div id="res-exp" class="text-xs text-left bg-black/40 p-3 rounded-lg border border-white/5 space-y-2 mb-4 flex-1 overflow-y-auto"></div>
+            <div class="text-left w-full mb-2 text-[10px] text-slate-500 font-bold uppercase">Spiegazione</div>
+            <div id="res-exp" class="text-xs text-left bg-black/40 p-4 rounded-lg border border-white/5 space-y-3 mb-4 flex-1 overflow-y-auto"></div>
 
-            <button onclick="Game.next()" class="w-full py-4 bg-blue-600 text-white rounded-xl font-bold text-lg border-b-4 border-blue-800 mt-auto shadow-lg">AVANTI <i class="fas fa-arrow-right ml-2"></i></button>
+            <button onclick="Game.next()" class="w-full py-4 bg-blue-600 text-white rounded-xl font-bold text-lg border-b-4 border-blue-800 mt-auto shadow-lg">CONTINUA <i class="fas fa-arrow-right ml-2"></i></button>
         </div>
 
-        <!-- SUMMARY -->
-        <div id="scr-sum" class="full-screen-layer p-6 text-center justify-center">
+        <!-- 5. SUMMARY -->
+        <div id="scr-sum" class="hidden absolute inset-0 z-40 bg-slate-950 flex-col items-center justify-center p-6 text-center">
             <div class="text-xl font-bold text-slate-400 uppercase mb-4">Fine Sessione</div>
             <div class="bg-slate-900 p-8 rounded-3xl border border-yellow-500/20 w-full mb-6 shadow-2xl">
                 <p class="text-[10px] text-slate-400 uppercase tracking-widest mb-2">Totale Vinto</p>
                 <p id="sum-tot" class="text-5xl font-black gold drop-shadow-sm">€ 0</p>
             </div>
-            <button onclick="UI.show('scr-menu')" class="w-full py-4 bg-slate-800 text-white rounded-xl font-bold border border-slate-600 hover:bg-slate-700">MENU</button>
+            <button onclick="UI.show('scr-menu')" class="w-full py-4 bg-slate-800 text-white rounded-xl font-bold border border-slate-600 hover:bg-slate-700">TORNA AL MENU</button>
         </div>
 
         <!-- MODALS -->
@@ -165,11 +163,11 @@
                     <div class="flex gap-2"><input type="password" id="api-key" class="w-full bg-black border border-slate-700 rounded p-2 text-xs text-white" placeholder="Incolla Key..."><button onclick="AI.conn()" class="bg-blue-600 text-white px-3 rounded text-xs font-bold">OK</button></div>
                 </div>
                 <div class="bg-slate-900 p-3 rounded-xl border border-slate-800">
-                    <label class="text-[9px] font-bold text-slate-400 uppercase block mb-1">2. Modello & Genera</label>
+                    <label class="text-[9px] font-bold text-slate-400 uppercase block mb-1">2. Genera Nuovi Giochi</label>
                     <select id="mod-sel" class="w-full bg-black border border-slate-700 text-white text-xs rounded p-2 mb-3"><option>Prima la Key...</option></select>
-                    <button id="btn-gen" onclick="AI.gen()" class="w-full py-4 bg-purple-600 rounded-lg text-white text-xs font-bold shadow-lg">SCARICA 5 PARTITE NUOVE</button>
+                    <button id="btn-gen" onclick="AI.gen()" class="w-full py-4 bg-purple-600 rounded-lg text-white text-xs font-bold shadow-lg">SCARICA 5 PARTITE</button>
                 </div>
-                <div id="log" class="text-[9px] font-mono text-slate-500 bg-black p-2 rounded hidden h-20 overflow-y-auto"></div>
+                <div id="log" class="text-[9px] font-mono text-slate-500 bg-black p-2 rounded hidden h-24 overflow-y-auto border border-slate-800"></div>
             </div>
         </div>
 
@@ -181,23 +179,25 @@
     </main>
 
     <script>
+        // PWA
         (function() {
-            const m={name:"Ghigliottina",display:"standalone",background_color:"#020617",theme_color:"#020617",icons:[{src:"https://cdn-icons-png.flaticon.com/512/2040/2040504.png",sizes:"512x512",type:"image/png"}]};
+            const m={name:"Ghigliottina",display:"standalone",background_color:"#0f172a",theme_color:"#0f172a",icons:[{src:"https://cdn-icons-png.flaticon.com/512/2040/2040504.png",sizes:"512x512",type:"image/png"}]};
             const l=document.createElement('link'); l.rel='manifest'; l.href=URL.createObjectURL(new Blob([JSON.stringify(m)],{type:'application/json'})); document.head.appendChild(l);
         })();
 
+        // DATABASE
         const DB = {
             q: [],
             load() { const s=localStorage.getItem('g_q'); if(s) this.q=JSON.parse(s); this.ui(); },
             set(g) {
+                // SANITIZER: ANTI-SPOILER + JSON FIX
                 const clean = g.map(game => {
                     const sol = game.sol.toUpperCase().trim();
                     game.pairs = game.pairs.map(p => {
                         let okWord = p.ok.toUpperCase().trim();
-                        // Anti-Spoiler Aggressivo
+                        // Se contiene la soluzione, censura
                         if(okWord.includes(sol)) {
-                            okWord = okWord.replace(sol, '').trim();
-                            okWord = okWord.replace(/\b(DI|DEL|DELLA|DELLO|DEGLI|D'|DA|CON|SU|PER|TRA|FRA)$/i, '').trim();
+                            okWord = okWord.replace(sol, '...').trim();
                         }
                         if(!okWord || okWord.length < 2) okWord = "NASCOSTO";
                         return {...p, ok: okWord};
@@ -214,7 +214,7 @@
                 document.getElementById('q-bar').style.width=(n/5*100)+'%';
                 document.getElementById('q-stat').innerText=n+"/5 CARICHE";
                 const btn = document.getElementById('btn-start');
-                btn.innerText=n>0?(p===0?"INIZIA":"CONTINUA"):"RICARICA";
+                btn.innerText=n>0?(p===0?"INIZIA SESSIONE":"CONTINUA"):"RICARICA PARTITE";
                 btn.className=n>0?"w-full py-5 bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl font-bold text-lg text-white shadow-lg active:scale-95 transition-all":"w-full py-5 bg-slate-800 rounded-2xl font-bold text-slate-500 border border-slate-700";
                 document.getElementById('game-progress').innerText=p+" / 5";
                 const sc=parseInt(localStorage.getItem('g_sc')||0);
@@ -222,7 +222,7 @@
             }
         };
 
-        // --- NEW AI LOGIC (CLASSIC TV STYLE) ---
+        // AI ENGINE
         const AI = {
             k: localStorage.getItem('g_k')||'',
             log(t,e){const l=document.getElementById('log');l.classList.remove('hidden');l.innerHTML+=`<div class="${e?'text-red-400':'text-green-400'}">> ${t}</div>`;l.scrollTop=l.scrollHeight;},
@@ -242,73 +242,89 @@
                 if(!this.k)return alert('No Key');
                 const btn=document.getElementById('btn-gen'); btn.disabled=true; btn.innerText='GENERAZIONE...';
                 
-                // PROMPT TV CLASSICO
-                const p=`Agisci come autore del gioco TV "L'Eredità". Crea 5 partite di "Ghigliottina".
-                
-                REGOLE TASSATIVE PER OGNI PARTITA:
-                1. "sol": La soluzione. Deve essere un SOSTANTIVO o AGGETTIVO comune (Es: "NOTTE", "VITA", "TAVOLO"). MAIUSCOLO.
-                2. "pairs": 5 coppie di parole.
-                   - "ok": Parola indizio. Deve legarsi alla soluzione tramite:
-                     * PAROLE COMPOSTE (es: "Uomo" -> "Ragno")
-                     * MODI DI DIRE (es: "Chi dorme non piglia..." -> "Pesci")
-                     * TITOLI (Film, Libri)
-                     * SINONIMI/CONTRARI (es: "Buio" -> "Luce")
-                   - "a" o "b": Parola distrattrice. Deve essere PLAUSIBILE ma ERRATA. Non un sinonimo dell'indizio, ma una parola che potrebbe sembrare giusta a prima vista.
-                3. DIVIETO ASSOLUTO DI FRASI. Solo parole SINGOLE.
-                4. "ok" NON deve mai contenere la parola soluzione.
+                const themes = ["casa","natura","cucina","concetti","lavoro","viaggi","moda","scienza","arte","sport"];
+                const rndT = themes[Math.floor(Math.random()*themes.length)];
 
-                JSON Output Array:
+                // PROMPT TV
+                const p=`Agisci come autore TV. Crea 5 partite per "La Ghigliottina".
+                Tema ispirazione: ${rndT}.
+                
+                JSON Array di 5 oggetti:
                 [
                   {
                     "id": 1,
-                    "sol": "PAROLA_SOLUZIONE",
+                    "sol": "SOLUZIONE (Sostantivo, Maiuscolo)",
                     "pairs": [
-                       {"a": "Distrattore1", "b": "Indizio1", "ok": "Indizio1"},
-                       {"a": "Indizio2", "b": "Distrattore2", "ok": "Indizio2"},
+                       {"a": "Distrattore", "b": "Indizio", "ok": "Indizio"},
                        ... (5 coppie)
                     ],
-                    "exp": ["Spiegazione1 (es: Uomo Ragno)", "Spiegazione2", ...]
+                    "exp": ["Spiegazione breve", ... (5 spiegazioni)]
                   }
-                ]`;
+                ]
+                
+                REGOLE TASSATIVE:
+                1. 'ok' deve essere una SINGOLA parola che si lega a 'sol' (parola composta, modo di dire).
+                2. 'ok' NON deve MAI contenere la parola 'sol'. Se la soluzione è 'SOLE', l'indizio non può essere 'SOLEADO'.
+                3. Italiano. Niente frasi.
+                4. Output SOLO JSON.`;
                 
                 try{
                     const u=`https://generativelanguage.googleapis.com/v1beta/${document.getElementById('mod-sel').value}:generateContent?key=${this.k}`;
                     const r=await fetch(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:p}]}]})});
                     const d=await r.json(); 
-                    let tx=d.candidates[0].content.parts[0].text.replace(/```json|```/g,'').trim();
-                    const g=JSON.parse(tx).map(x=>({...x,id:Date.now()+Math.random()}));
-                    if(g.length!==5)throw new Error("Count Err");
-                    DB.set(g); this.log("Fatto",false); setTimeout(()=>UI.closeModals(),1000);
+                    let tx=d.candidates[0].content.parts[0].text;
+                    // EXTRACTION FIX: Find first [ and last ]
+                    const s=tx.indexOf('['); const e=tx.lastIndexOf(']');
+                    if(s===-1 || e===-1) throw new Error("JSON non trovato");
+                    const jsonStr = tx.substring(s, e+1);
+                    const g=JSON.parse(jsonStr).map(x=>({...x,id:Date.now()+Math.random()}));
+                    
+                    if(g.length!==5)throw new Error("Ne servono 5");
+                    DB.set(g); this.log(`Fatto (${rndT})`,false); setTimeout(()=>UI.closeModals(),1000);
                 }catch(e){this.log(e.message,true);}finally{btn.disabled=false; btn.innerText='SCARICA';}
             }
         };
 
+        // GAMEPLAY
         const Game = {
-            c:null, m:0, i:0, t:null,
+            c:null, m:0, i:0, t:null, collected:[],
             checkQueue(){ if(!DB.q.length) { UI.modal('m-set'); document.getElementById('log').innerHTML="<div class='text-red-400'>Nessuna partita. Generane 5.</div>"; document.getElementById('log').classList.remove('hidden'); } else this.start(); },
             
             start(){
-                this.cleanBoard();
+                this.clean();
                 this.c=DB.next(); if(!this.c)return;
-                this.m=160000; this.i=0;
+                this.m=160000; this.i=0; this.collected=[];
+                this.renderRecap();
                 UI.show('scr-pairs'); this.updM(); this.pair();
             },
 
-            cleanBoard(){
-                const cl = document.getElementById('clues'); if(cl) cl.innerHTML = '';
-                const re = document.getElementById('res-exp'); if(re) re.innerHTML = '';
-                const rs = document.getElementById('res-sol'); if(rs) rs.innerText = '';
+            clean(){
+                document.getElementById('clues').innerHTML=''; document.getElementById('res-exp').innerHTML='';
+                document.getElementById('res-sol').innerText=''; document.getElementById('mini-recap').innerHTML='';
             },
 
             updM(){ document.getElementById('money').innerText="€ "+this.m.toLocaleString('it-IT'); },
             
+            renderRecap(){
+                const el = document.getElementById('mini-recap');
+                el.innerHTML = '';
+                // 5 slots placeholder
+                for(let k=0; k<5; k++){
+                    const word = this.collected[k];
+                    const span = document.createElement('span');
+                    span.className = word ? "mini-pill found" : "mini-pill";
+                    span.innerText = word || "?";
+                    el.appendChild(span);
+                }
+            },
+
             pair(){
                 if(this.i>=5)return this.final();
                 const p=this.c.pairs[this.i];
                 const ca=document.getElementById('card-a'); const cb=document.getElementById('card-b');
-                [ca,cb].forEach(c=>{ c.className="ghig-card flex-1 w-full rounded-2xl text-2xl font-bold text-white relative overflow-hidden bg-blue-800 border-b-4 border-blue-950"; c.style.pointerEvents='auto'; });
+                [ca,cb].forEach(c=>{ c.className="ghig-card flex-1 w-full rounded-2xl text-2xl font-bold text-white relative bg-blue-800 border-b-4 border-blue-950"; c.style.pointerEvents='auto'; });
                 if(Math.random()>.5){this.set(ca,p.a);this.set(cb,p.b);}else{this.set(ca,p.b);this.set(cb,p.a);}
-                document.getElementById('p-idx').innerText=this.i+1; document.getElementById('p-bar').style.width=((this.i)/5*100)+'%';
+                document.getElementById('p-bar').style.width=((this.i)/5*100)+'%';
             },
             
             set(e,t){e.querySelector('span').innerText=t;e.dataset.w=t;},
@@ -321,14 +337,18 @@
                 document.getElementById('card-b').style.pointerEvents='none';
                 
                 if(sel.dataset.w.toUpperCase() === ok.toUpperCase()){
-                    sel.classList.add('correct'); setTimeout(()=>{this.i++;this.pair();},600);
+                    sel.classList.add('correct'); 
+                    this.collected.push(ok); // Add to collection
                 }else{
                     sel.classList.add('wrong'); oth.classList.add('correct');
                     this.m=Math.floor(this.m/2); this.updM();
+                    this.collected.push(ok); // Correct word is always collected
                     const fx=document.getElementById('fx-cut'); fx.classList.remove('opacity-0');
                     setTimeout(()=>fx.classList.add('opacity-0'),800);
-                    setTimeout(()=>{this.i++;this.pair();},1000);
                 }
+                
+                this.renderRecap(); // Update UI
+                setTimeout(()=>{this.i++;this.pair();},1000);
             },
             
             final(){
@@ -361,7 +381,7 @@
                 document.getElementById('res-sol').innerText=this.c.sol;
                 const b=document.getElementById('res-exp'); b.innerHTML='';
                 this.c.pairs.forEach((p,k)=>{
-                    b.innerHTML += `<div class="mb-2 border-b border-white/10 pb-1"><span class="text-blue-400 font-bold">${p.ok}</span> <span class="text-slate-500 text-[10px]">➜</span> <span class="text-white">${this.c.exp[k]}</span></div>`;
+                    b.innerHTML += `<div class="mb-3 border-b border-white/10 pb-2"><span class="text-blue-400 font-bold block mb-1">${p.ok}</span><span class="text-slate-300 italic text-[11px] leading-tight block">${this.c.exp[k]}</span></div>`;
                 });
                 const t=document.getElementById('res-title'); const msg=document.getElementById('res-msg'); const ico=document.getElementById('res-icon');
                 if(w){
@@ -393,8 +413,9 @@
 
         const UI = {
             show(id){
-                document.querySelectorAll('.full-screen-layer').forEach(s => s.classList.remove('active'));
-                document.getElementById(id).classList.add('active');
+                ['scr-menu','scr-pairs','scr-final','scr-res','scr-sum'].forEach(x=>document.getElementById(x).classList.add('hidden')); 
+                document.getElementById(id).classList.remove('hidden');
+                if(id!=='scr-menu') document.getElementById(id).classList.add('flex');
             },
             modal(id){ document.getElementById(id).classList.remove('hidden'); document.getElementById(id).classList.add('flex'); if(id==='m-set'&&AI.k){document.getElementById('api-key').value=AI.k;AI.conn();} },
             closeModals(){ document.querySelectorAll('[id^="m-"]').forEach(x=>x.classList.add('hidden')); },
