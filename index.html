@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Ghigliottina v16</title>
+    <title>Ghigliottina v16.1</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
@@ -35,7 +35,6 @@
             display: flex; align-items: center; justify-content: center;
             transition: transform 0.1s;
             position: relative;
-            /* FORZA MAIUSCOLO VISIVO */
             text-transform: uppercase; 
         }
         .ghig-card:active { transform: scale(0.96); }
@@ -72,7 +71,7 @@
         <div id="scr-menu" class="absolute inset-0 flex flex-col p-6 z-10 bg-slate-900">
             <div class="flex-1 flex flex-col justify-center text-center">
                 <h1 class="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-br from-indigo-300 via-white to-indigo-300 drop-shadow-lg tracking-tighter mb-2">LA<br>GHIGLIOTTINA</h1>
-                <p class="text-[9px] text-slate-500 uppercase tracking-[0.4em] font-bold">Version 16.0</p>
+                <p class="text-[9px] text-slate-500 uppercase tracking-[0.4em] font-bold">Version 16.1</p>
             </div>
             
             <div class="space-y-3 mb-8 w-full">
@@ -92,18 +91,15 @@
             </div>
         </div>
 
-        <!-- 2. PAIRS (SCALATA) -->
+        <!-- 2. PAIRS -->
         <div id="scr-pairs" class="hidden absolute inset-0 flex-col p-4 bg-slate-900">
             <div class="text-center shrink-0 mb-2">
                 <div class="text-2xl font-black text-white mb-1" id="money">€ 160.000</div>
                 <div class="h-1 w-full bg-slate-800 rounded-full mb-2"><div id="p-bar" class="h-full bg-blue-500 transition-all" style="width:20%"></div></div>
-                
-                <!-- MINI RECAP -->
                 <div class="flex flex-wrap justify-center gap-1 min-h-[24px]" id="mini-recap"></div>
             </div>
 
             <div class="flex-1 flex flex-col gap-3 min-h-0 py-2">
-                <!-- Added 'uppercase' class here -->
                 <div id="card-a" onclick="Game.pick(0)" class="ghig-card flex-1 w-full rounded-2xl text-2xl font-bold text-white relative overflow-hidden uppercase"><span class="relative z-10">A</span></div>
                 <div class="shrink-0 flex justify-center items-center h-6"><span class="bg-slate-800 px-3 py-1 rounded-full text-[10px] text-slate-500 font-bold border border-slate-700 uppercase">OPPURE</span></div>
                 <div id="card-b" onclick="Game.pick(1)" class="ghig-card flex-1 w-full rounded-2xl text-2xl font-bold text-white relative overflow-hidden uppercase"><span class="relative z-10">B</span></div>
@@ -112,7 +108,7 @@
             <div id="fx-cut" class="absolute inset-0 bg-red-900/80 pointer-events-none opacity-0 flex items-center justify-center z-50 transition-opacity backdrop-blur-sm"><div class="text-3xl font-black text-white bg-red-600 px-6 py-4 -rotate-12 border-4 border-white shadow-2xl uppercase">DIMEZZATO!</div></div>
         </div>
 
-        <!-- 3. FINAL (FILO ROSSO) -->
+        <!-- 3. FINAL -->
         <div id="scr-final" class="hidden absolute inset-0 flex-col p-4 bg-slate-900">
             <div class="flex justify-between items-center mb-2 shrink-0">
                 <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Il Filo Rosso</div>
@@ -184,7 +180,6 @@
             const l=document.createElement('link'); l.rel='manifest'; l.href=URL.createObjectURL(new Blob([JSON.stringify(m)],{type:'application/json'})); document.head.appendChild(l);
         })();
 
-        // DB - Ensures UPPERCASE data on load/set
         const DB = {
             q: [],
             load() { const s=localStorage.getItem('g_q'); if(s) this.q=JSON.parse(s); this.ui(); },
@@ -193,7 +188,6 @@
                     const sol = game.sol.toUpperCase().trim();
                     game.pairs = game.pairs.map(p => {
                         let okWord = p.ok.toUpperCase().trim();
-                        // Anti-Spoiler Aggressivo
                         if(okWord.includes(sol)) okWord = okWord.replace(sol, '...').trim();
                         if(!okWord || okWord.length < 2) okWord = "NASCOSTO";
                         return {a: p.a.toUpperCase().trim(), b: p.b.toUpperCase().trim(), ok: okWord};
@@ -212,13 +206,11 @@
                 const btn = document.getElementById('btn-start');
                 const span = btn.querySelector('span');
                 span.innerText=n>0?(p===0?"INIZIA SESSIONE":"CONTINUA"):"RICARICA PARTITE";
-                
                 if(n===0) {
                     btn.className="w-full py-5 bg-slate-800 rounded-2xl font-bold text-slate-500 border border-slate-700 cursor-not-allowed";
                 } else {
                     btn.className="w-full py-5 bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl font-bold text-lg text-white shadow-lg active:scale-95 transition-all relative group overflow-hidden uppercase tracking-widest";
                 }
-
                 document.getElementById('game-progress').innerText=p+" / 5";
                 const sc=parseInt(localStorage.getItem('g_sc')||0);
                 const el=document.getElementById('session-score'); if(el) el.innerText="€ "+sc.toLocaleString('it-IT');
@@ -320,7 +312,6 @@
                 if(this.i>=5)return this.final();
                 const p=this.c.pairs[this.i];
                 const ca=document.getElementById('card-a'); const cb=document.getElementById('card-b');
-                // Added uppercase class
                 [ca,cb].forEach(c=>{ c.className="ghig-card flex-1 w-full rounded-2xl text-2xl font-bold text-white relative overflow-hidden bg-blue-800 border-b-4 border-blue-950 uppercase"; c.style.pointerEvents='auto'; });
                 if(Math.random()>.5){this.set(ca,p.a);this.set(cb,p.b);}else{this.set(ca,p.b);this.set(cb,p.a);}
                 document.getElementById('p-bar').style.width=((this.i)/5*100)+'%';
@@ -356,7 +347,6 @@
                 
                 this.c.pairs.forEach((p,k)=>{
                     const d=document.createElement('div');
-                    // Added uppercase
                     d.className="bg-blue-900/50 border border-blue-500/30 rounded p-3 text-center text-xl font-bold text-blue-100 opacity-0 transform translate-x-4 transition-all duration-500 shrink-0 shadow-sm uppercase";
                     d.innerText=p.ok; 
                     d.style.transitionDelay=(k*100)+'ms'; 
@@ -382,7 +372,6 @@
                 document.getElementById('res-sol').innerText=this.c.sol;
                 const b=document.getElementById('res-exp'); b.innerHTML='';
                 this.c.pairs.forEach((p,k)=>{
-                    // Added uppercase to word
                     b.innerHTML += `<div class="mb-3 border-b border-white/10 pb-2"><span class="text-blue-400 font-bold block mb-1 uppercase">${p.ok}</span><span class="text-slate-300 italic text-[11px] leading-tight block">${this.c.exp[k]}</span></div>`;
                 });
                 const t=document.getElementById('res-title'); const msg=document.getElementById('res-msg'); const ico=document.getElementById('res-icon');
@@ -405,10 +394,11 @@
             next(){ if(!DB.q.length) this.finish(); else this.start(); },
             finish(){
                 UI.show('scr-sum');
-                const tot=localStorage.getItem('g_sc');
-                document.getElementById('sum-tot').innerText="€ "+parseInt(tot).toLocaleString();
+                const tot=parseInt(localStorage.getItem('g_sc')||0);
+                document.getElementById('sum-tot').innerText="€ "+tot.toLocaleString('it-IT');
                 const l=JSON.parse(localStorage.getItem('g_lb')||'[]');
-                l.push({d:new Date().toLocaleDateString(),m:parseInt(tot)}); l.sort((a,b)=>b.m-a.m);
+                l.push({d:new Date().toLocaleDateString("it-IT"), m:tot}); 
+                l.sort((a,b)=>b.m-a.m);
                 localStorage.setItem('g_lb',JSON.stringify(l.slice(0,10))); UI.updLb();
             }
         };
@@ -421,7 +411,17 @@
             },
             modal(id){ document.getElementById(id).classList.remove('hidden'); document.getElementById(id).classList.add('flex'); if(id==='m-set'&&AI.k){document.getElementById('api-key').value=AI.k;AI.conn();} },
             closeModals(){ document.querySelectorAll('[id^="m-"]').forEach(x=>x.classList.add('hidden')); },
-            updLb(){ const l=JSON.parse(localStorage.getItem('g_lb')||'[]'); const b=document.getElementById('lb-bod'); b.innerHTML=''; l.forEach(r=>b.innerHTML+=`<tr><td class="p-2 border-b border-slate-800">${r.d}</td><td class="p-2 border-b border-slate-800 text-right text-yellow-500">€${r.m.toLocaleString()}</td></tr>`); }
+            
+            // FIX ALBO GENERATION: SAFETY CHECK FOR NUMBER
+            updLb(){ 
+                const l=JSON.parse(localStorage.getItem('g_lb')||'[]'); 
+                const b=document.getElementById('lb-bod'); 
+                b.innerHTML=''; 
+                l.forEach(r=>{
+                    const mVal = (typeof r.m === 'number' && !isNaN(r.m)) ? r.m : 0;
+                    b.innerHTML+=`<tr><td class="p-2 border-b border-slate-800 text-[10px]">${r.d}</td><td class="p-2 border-b border-slate-800 text-right text-yellow-500 font-mono">€ ${mVal.toLocaleString('it-IT')}</td></tr>`;
+                }); 
+            }
         };
 
         DB.load(); UI.updLb();
