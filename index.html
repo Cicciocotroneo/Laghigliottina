@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Ghigliottina v15</title>
+    <title>Ghigliottina v16</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
@@ -35,6 +35,8 @@
             display: flex; align-items: center; justify-content: center;
             transition: transform 0.1s;
             position: relative;
+            /* FORZA MAIUSCOLO VISIVO */
+            text-transform: uppercase; 
         }
         .ghig-card:active { transform: scale(0.96); }
 
@@ -45,8 +47,7 @@
 
         .gold { background: linear-gradient(to bottom, #facc15, #a16207); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         
-        /* Recap pills style */
-        .mini-pill { font-size: 10px; padding: 4px 8px; border-radius: 99px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); white-space: nowrap; }
+        .mini-pill { font-size: 10px; padding: 4px 8px; border-radius: 99px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); white-space: nowrap; text-transform: uppercase; }
         .mini-pill.found { background: #22c55e; border-color: #4ade80; color: white; font-weight: bold; }
     </style>
 </head>
@@ -71,22 +72,22 @@
         <div id="scr-menu" class="absolute inset-0 flex flex-col p-6 z-10 bg-slate-900">
             <div class="flex-1 flex flex-col justify-center text-center">
                 <h1 class="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-br from-indigo-300 via-white to-indigo-300 drop-shadow-lg tracking-tighter mb-2">LA<br>GHIGLIOTTINA</h1>
-                <p class="text-[9px] text-slate-500 uppercase tracking-[0.4em] font-bold">Version 15.0</p>
+                <p class="text-[9px] text-slate-500 uppercase tracking-[0.4em] font-bold">Version 16.0</p>
             </div>
             
             <div class="space-y-3 mb-8 w-full">
-                <button id="btn-start" onclick="Game.checkQueue()" class="w-full py-5 bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl font-bold text-lg text-white shadow-lg active:scale-95 transition-all relative group overflow-hidden">
+                <button id="btn-start" onclick="Game.checkQueue()" class="w-full py-5 bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl font-bold text-lg text-white shadow-lg active:scale-95 transition-all relative group overflow-hidden uppercase tracking-widest">
                     <span class="relative z-10">GIOCA</span>
                     <div class="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition"></div>
                 </button>
                 <div class="flex gap-2">
-                    <button onclick="UI.modal('m-lb')" class="flex-1 py-3 bg-slate-800 rounded-xl text-xs font-bold text-slate-300 border border-slate-700 active:bg-slate-700">🏆 ALBO</button>
-                    <button onclick="UI.modal('m-set')" class="flex-1 py-3 bg-slate-800 rounded-xl text-xs font-bold text-slate-300 border border-slate-700 active:bg-slate-700">🤖 AI SETUP</button>
+                    <button onclick="UI.modal('m-lb')" class="flex-1 py-3 bg-slate-800 rounded-xl text-xs font-bold text-slate-300 border border-slate-700 active:bg-slate-700 uppercase">🏆 ALBO</button>
+                    <button onclick="UI.modal('m-set')" class="flex-1 py-3 bg-slate-800 rounded-xl text-xs font-bold text-slate-300 border border-slate-700 active:bg-slate-700 uppercase">🤖 AI SETUP</button>
                 </div>
             </div>
 
             <div class="text-center">
-                <div class="flex justify-between text-[9px] text-slate-500 mb-1 px-1"><span id="q-stat">Vuoto</span><span>Munizioni</span></div>
+                <div class="flex justify-between text-[9px] text-slate-500 mb-1 px-1"><span id="q-stat" class="uppercase">Vuoto</span><span class="uppercase">Munizioni</span></div>
                 <div class="w-full h-1 bg-slate-800 rounded-full overflow-hidden"><div id="q-bar" class="h-full bg-slate-600 w-0 transition-all"></div></div>
             </div>
         </div>
@@ -97,19 +98,18 @@
                 <div class="text-2xl font-black text-white mb-1" id="money">€ 160.000</div>
                 <div class="h-1 w-full bg-slate-800 rounded-full mb-2"><div id="p-bar" class="h-full bg-blue-500 transition-all" style="width:20%"></div></div>
                 
-                <!-- MINI RECAP REQUESTED -->
-                <div class="flex flex-wrap justify-center gap-1 min-h-[24px]" id="mini-recap">
-                    <!-- Pills injected here -->
-                </div>
+                <!-- MINI RECAP -->
+                <div class="flex flex-wrap justify-center gap-1 min-h-[24px]" id="mini-recap"></div>
             </div>
 
             <div class="flex-1 flex flex-col gap-3 min-h-0 py-2">
-                <div id="card-a" onclick="Game.pick(0)" class="ghig-card flex-1 w-full rounded-2xl text-2xl font-bold text-white relative overflow-hidden"><span class="relative z-10">A</span></div>
-                <div class="shrink-0 flex justify-center items-center h-6"><span class="bg-slate-800 px-3 py-1 rounded-full text-[10px] text-slate-500 font-bold border border-slate-700">OPPURE</span></div>
-                <div id="card-b" onclick="Game.pick(1)" class="ghig-card flex-1 w-full rounded-2xl text-2xl font-bold text-white relative overflow-hidden"><span class="relative z-10">B</span></div>
+                <!-- Added 'uppercase' class here -->
+                <div id="card-a" onclick="Game.pick(0)" class="ghig-card flex-1 w-full rounded-2xl text-2xl font-bold text-white relative overflow-hidden uppercase"><span class="relative z-10">A</span></div>
+                <div class="shrink-0 flex justify-center items-center h-6"><span class="bg-slate-800 px-3 py-1 rounded-full text-[10px] text-slate-500 font-bold border border-slate-700 uppercase">OPPURE</span></div>
+                <div id="card-b" onclick="Game.pick(1)" class="ghig-card flex-1 w-full rounded-2xl text-2xl font-bold text-white relative overflow-hidden uppercase"><span class="relative z-10">B</span></div>
             </div>
             
-            <div id="fx-cut" class="absolute inset-0 bg-red-900/80 pointer-events-none opacity-0 flex items-center justify-center z-50 transition-opacity backdrop-blur-sm"><div class="text-3xl font-black text-white bg-red-600 px-6 py-4 -rotate-12 border-4 border-white shadow-2xl">DIMEZZATO!</div></div>
+            <div id="fx-cut" class="absolute inset-0 bg-red-900/80 pointer-events-none opacity-0 flex items-center justify-center z-50 transition-opacity backdrop-blur-sm"><div class="text-3xl font-black text-white bg-red-600 px-6 py-4 -rotate-12 border-4 border-white shadow-2xl uppercase">DIMEZZATO!</div></div>
         </div>
 
         <!-- 3. FINAL (FILO ROSSO) -->
@@ -119,29 +119,29 @@
                 <div class="flex items-center gap-2"><i class="fas fa-clock text-yellow-500"></i> <span id="timer" class="font-mono font-bold text-white">60</span></div>
             </div>
 
-            <div id="clues" class="flex-1 flex flex-col gap-2 min-h-0 overflow-y-auto pb-2"></div>
+            <div id="clues" class="flex-1 flex flex-col gap-2 min-h-0 overflow-y-auto pb-2 uppercase"></div>
 
             <div class="shrink-0 pt-2 z-20">
                 <input type="text" id="inp" class="w-full bg-slate-950 border border-slate-700 text-yellow-400 text-center text-xl font-black py-4 rounded-xl focus:outline-none focus:border-yellow-500 placeholder-slate-800 uppercase mb-2" placeholder="LA TUA PAROLA" autocomplete="off">
-                <button onclick="Game.submit()" class="w-full py-4 bg-green-600 active:bg-green-700 text-white font-bold rounded-xl text-lg border-b-4 border-green-800 shadow-lg">CONFERMA</button>
+                <button onclick="Game.submit()" class="w-full py-4 bg-green-600 active:bg-green-700 text-white font-bold rounded-xl text-lg border-b-4 border-green-800 shadow-lg uppercase">CONFERMA</button>
             </div>
         </div>
 
         <!-- 4. RESULT -->
         <div id="scr-res" class="hidden absolute inset-0 z-30 bg-slate-900 flex-col p-6 text-center overflow-y-auto">
             <div id="res-icon" class="text-6xl mb-2"></div>
-            <h2 id="res-title" class="text-3xl font-black text-white mb-1"></h2>
-            <p id="res-msg" class="text-xs text-slate-400 mb-6"></p>
+            <h2 id="res-title" class="text-3xl font-black text-white mb-1 uppercase"></h2>
+            <p id="res-msg" class="text-xs text-slate-400 mb-6 uppercase"></p>
 
             <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 mb-6 shadow-lg">
                 <p class="text-[9px] text-slate-500 uppercase font-bold mb-1">Soluzione</p>
-                <p id="res-sol" class="text-3xl font-black text-white tracking-widest"></p>
+                <p id="res-sol" class="text-3xl font-black text-white tracking-widest uppercase"></p>
             </div>
 
             <div class="text-left w-full mb-2 text-[10px] text-slate-500 font-bold uppercase">Spiegazione</div>
             <div id="res-exp" class="text-xs text-left bg-black/40 p-4 rounded-lg border border-white/5 space-y-3 mb-4 flex-1 overflow-y-auto"></div>
 
-            <button onclick="Game.next()" class="w-full py-4 bg-blue-600 text-white rounded-xl font-bold text-lg border-b-4 border-blue-800 mt-auto shadow-lg">CONTINUA <i class="fas fa-arrow-right ml-2"></i></button>
+            <button onclick="Game.next()" class="w-full py-4 bg-blue-600 text-white rounded-xl font-bold text-lg border-b-4 border-blue-800 mt-auto shadow-lg uppercase">CONTINUA <i class="fas fa-arrow-right ml-2"></i></button>
         </div>
 
         <!-- 5. SUMMARY -->
@@ -151,12 +151,12 @@
                 <p class="text-[10px] text-slate-400 uppercase tracking-widest mb-2">Totale Vinto</p>
                 <p id="sum-tot" class="text-5xl font-black gold drop-shadow-sm">€ 0</p>
             </div>
-            <button onclick="UI.show('scr-menu')" class="w-full py-4 bg-slate-800 text-white rounded-xl font-bold border border-slate-600 hover:bg-slate-700">TORNA AL MENU</button>
+            <button onclick="UI.show('scr-menu')" class="w-full py-4 bg-slate-800 text-white rounded-xl font-bold border border-slate-600 hover:bg-slate-700 uppercase">TORNA AL MENU</button>
         </div>
 
         <!-- MODALS -->
         <div id="m-set" class="hidden absolute inset-0 z-[100] bg-slate-950 p-4 flex-col animate-fade-in">
-            <div class="flex justify-between mb-4"><h2 class="font-bold text-white">Generatore</h2><button onclick="UI.closeModals()"><i class="fas fa-times text-slate-500"></i></button></div>
+            <div class="flex justify-between mb-4"><h2 class="font-bold text-white uppercase">Generatore</h2><button onclick="UI.closeModals()"><i class="fas fa-times text-slate-500"></i></button></div>
             <div class="flex-1 overflow-y-auto space-y-4">
                 <div class="bg-slate-900 p-3 rounded-xl border border-slate-800">
                     <label class="text-[9px] font-bold text-slate-400 uppercase block mb-1">1. API Key</label>
@@ -165,42 +165,38 @@
                 <div class="bg-slate-900 p-3 rounded-xl border border-slate-800">
                     <label class="text-[9px] font-bold text-slate-400 uppercase block mb-1">2. Genera Nuovi Giochi</label>
                     <select id="mod-sel" class="w-full bg-black border border-slate-700 text-white text-xs rounded p-2 mb-3"><option>Prima la Key...</option></select>
-                    <button id="btn-gen" onclick="AI.gen()" class="w-full py-4 bg-purple-600 rounded-lg text-white text-xs font-bold shadow-lg">SCARICA 5 PARTITE</button>
+                    <button id="btn-gen" onclick="AI.gen()" class="w-full py-4 bg-purple-600 rounded-lg text-white text-xs font-bold shadow-lg uppercase">SCARICA 5 PARTITE</button>
                 </div>
                 <div id="log" class="text-[9px] font-mono text-slate-500 bg-black p-2 rounded hidden h-24 overflow-y-auto border border-slate-800"></div>
             </div>
         </div>
 
         <div id="m-lb" class="hidden absolute inset-0 z-[100] bg-slate-950 p-4 flex-col animate-fade-in">
-            <div class="flex justify-between mb-4"><h2 class="font-bold text-white text-yellow-500">Albo d'Oro</h2><button onclick="UI.closeModals()"><i class="fas fa-times text-slate-500"></i></button></div>
+            <div class="flex justify-between mb-4"><h2 class="font-bold text-white text-yellow-500 uppercase">Albo d'Oro</h2><button onclick="UI.closeModals()"><i class="fas fa-times text-slate-500"></i></button></div>
             <div class="bg-slate-900 rounded-xl p-2 overflow-y-auto flex-1 border border-slate-800"><table class="w-full text-xs text-slate-300 text-left"><tbody id="lb-bod"></tbody></table></div>
         </div>
 
     </main>
 
     <script>
-        // PWA
         (function() {
             const m={name:"Ghigliottina",display:"standalone",background_color:"#0f172a",theme_color:"#0f172a",icons:[{src:"https://cdn-icons-png.flaticon.com/512/2040/2040504.png",sizes:"512x512",type:"image/png"}]};
             const l=document.createElement('link'); l.rel='manifest'; l.href=URL.createObjectURL(new Blob([JSON.stringify(m)],{type:'application/json'})); document.head.appendChild(l);
         })();
 
-        // DATABASE
+        // DB - Ensures UPPERCASE data on load/set
         const DB = {
             q: [],
             load() { const s=localStorage.getItem('g_q'); if(s) this.q=JSON.parse(s); this.ui(); },
             set(g) {
-                // SANITIZER: ANTI-SPOILER + JSON FIX
                 const clean = g.map(game => {
                     const sol = game.sol.toUpperCase().trim();
                     game.pairs = game.pairs.map(p => {
                         let okWord = p.ok.toUpperCase().trim();
-                        // Se contiene la soluzione, censura
-                        if(okWord.includes(sol)) {
-                            okWord = okWord.replace(sol, '...').trim();
-                        }
+                        // Anti-Spoiler Aggressivo
+                        if(okWord.includes(sol)) okWord = okWord.replace(sol, '...').trim();
                         if(!okWord || okWord.length < 2) okWord = "NASCOSTO";
-                        return {...p, ok: okWord};
+                        return {a: p.a.toUpperCase().trim(), b: p.b.toUpperCase().trim(), ok: okWord};
                     });
                     return game;
                 });
@@ -214,15 +210,21 @@
                 document.getElementById('q-bar').style.width=(n/5*100)+'%';
                 document.getElementById('q-stat').innerText=n+"/5 CARICHE";
                 const btn = document.getElementById('btn-start');
-                btn.innerText=n>0?(p===0?"INIZIA SESSIONE":"CONTINUA"):"RICARICA PARTITE";
-                btn.className=n>0?"w-full py-5 bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl font-bold text-lg text-white shadow-lg active:scale-95 transition-all":"w-full py-5 bg-slate-800 rounded-2xl font-bold text-slate-500 border border-slate-700";
+                const span = btn.querySelector('span');
+                span.innerText=n>0?(p===0?"INIZIA SESSIONE":"CONTINUA"):"RICARICA PARTITE";
+                
+                if(n===0) {
+                    btn.className="w-full py-5 bg-slate-800 rounded-2xl font-bold text-slate-500 border border-slate-700 cursor-not-allowed";
+                } else {
+                    btn.className="w-full py-5 bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl font-bold text-lg text-white shadow-lg active:scale-95 transition-all relative group overflow-hidden uppercase tracking-widest";
+                }
+
                 document.getElementById('game-progress').innerText=p+" / 5";
                 const sc=parseInt(localStorage.getItem('g_sc')||0);
                 const el=document.getElementById('session-score'); if(el) el.innerText="€ "+sc.toLocaleString('it-IT');
             }
         };
 
-        // AI ENGINE
         const AI = {
             k: localStorage.getItem('g_k')||'',
             log(t,e){const l=document.getElementById('log');l.classList.remove('hidden');l.innerHTML+=`<div class="${e?'text-red-400':'text-green-400'}">> ${t}</div>`;l.scrollTop=l.scrollHeight;},
@@ -245,11 +247,10 @@
                 const themes = ["casa","natura","cucina","concetti","lavoro","viaggi","moda","scienza","arte","sport"];
                 const rndT = themes[Math.floor(Math.random()*themes.length)];
 
-                // PROMPT TV
                 const p=`Agisci come autore TV. Crea 5 partite per "La Ghigliottina".
-                Tema ispirazione: ${rndT}.
+                Tema: ${rndT}.
                 
-                JSON Array di 5 oggetti:
+                Output JSON Array di 5 oggetti.
                 [
                   {
                     "id": 1,
@@ -263,9 +264,9 @@
                 ]
                 
                 REGOLE TASSATIVE:
-                1. 'ok' deve essere una SINGOLA parola che si lega a 'sol' (parola composta, modo di dire).
-                2. 'ok' NON deve MAI contenere la parola 'sol'. Se la soluzione è 'SOLE', l'indizio non può essere 'SOLEADO'.
-                3. Italiano. Niente frasi.
+                1. 'ok', 'a', 'b' e 'sol' devono essere SOLO parole SINGOLE. Niente frasi.
+                2. 'ok' NON deve MAI contenere la parola 'sol'.
+                3. Italiano.
                 4. Output SOLO JSON.`;
                 
                 try{
@@ -273,7 +274,6 @@
                     const r=await fetch(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:p}]}]})});
                     const d=await r.json(); 
                     let tx=d.candidates[0].content.parts[0].text;
-                    // EXTRACTION FIX: Find first [ and last ]
                     const s=tx.indexOf('['); const e=tx.lastIndexOf(']');
                     if(s===-1 || e===-1) throw new Error("JSON non trovato");
                     const jsonStr = tx.substring(s, e+1);
@@ -285,7 +285,6 @@
             }
         };
 
-        // GAMEPLAY
         const Game = {
             c:null, m:0, i:0, t:null, collected:[],
             checkQueue(){ if(!DB.q.length) { UI.modal('m-set'); document.getElementById('log').innerHTML="<div class='text-red-400'>Nessuna partita. Generane 5.</div>"; document.getElementById('log').classList.remove('hidden'); } else this.start(); },
@@ -308,7 +307,6 @@
             renderRecap(){
                 const el = document.getElementById('mini-recap');
                 el.innerHTML = '';
-                // 5 slots placeholder
                 for(let k=0; k<5; k++){
                     const word = this.collected[k];
                     const span = document.createElement('span');
@@ -322,7 +320,8 @@
                 if(this.i>=5)return this.final();
                 const p=this.c.pairs[this.i];
                 const ca=document.getElementById('card-a'); const cb=document.getElementById('card-b');
-                [ca,cb].forEach(c=>{ c.className="ghig-card flex-1 w-full rounded-2xl text-2xl font-bold text-white relative bg-blue-800 border-b-4 border-blue-950"; c.style.pointerEvents='auto'; });
+                // Added uppercase class
+                [ca,cb].forEach(c=>{ c.className="ghig-card flex-1 w-full rounded-2xl text-2xl font-bold text-white relative overflow-hidden bg-blue-800 border-b-4 border-blue-950 uppercase"; c.style.pointerEvents='auto'; });
                 if(Math.random()>.5){this.set(ca,p.a);this.set(cb,p.b);}else{this.set(ca,p.b);this.set(cb,p.a);}
                 document.getElementById('p-bar').style.width=((this.i)/5*100)+'%';
             },
@@ -338,16 +337,16 @@
                 
                 if(sel.dataset.w.toUpperCase() === ok.toUpperCase()){
                     sel.classList.add('correct'); 
-                    this.collected.push(ok); // Add to collection
+                    this.collected.push(ok);
                 }else{
                     sel.classList.add('wrong'); oth.classList.add('correct');
                     this.m=Math.floor(this.m/2); this.updM();
-                    this.collected.push(ok); // Correct word is always collected
+                    this.collected.push(ok);
                     const fx=document.getElementById('fx-cut'); fx.classList.remove('opacity-0');
                     setTimeout(()=>fx.classList.add('opacity-0'),800);
                 }
                 
-                this.renderRecap(); // Update UI
+                this.renderRecap();
                 setTimeout(()=>{this.i++;this.pair();},1000);
             },
             
@@ -357,8 +356,10 @@
                 
                 this.c.pairs.forEach((p,k)=>{
                     const d=document.createElement('div');
-                    d.className="bg-blue-900/50 border border-blue-500/30 rounded p-3 text-center text-xl font-bold text-blue-100 opacity-0 transform translate-x-4 transition-all duration-500 shrink-0 shadow-sm";
-                    d.innerText=p.ok; d.style.transitionDelay=(k*100)+'ms'; 
+                    // Added uppercase
+                    d.className="bg-blue-900/50 border border-blue-500/30 rounded p-3 text-center text-xl font-bold text-blue-100 opacity-0 transform translate-x-4 transition-all duration-500 shrink-0 shadow-sm uppercase";
+                    d.innerText=p.ok; 
+                    d.style.transitionDelay=(k*100)+'ms'; 
                     b.appendChild(d);
                     setTimeout(()=>d.classList.remove('opacity-0','translate-x-4'),50);
                 });
@@ -381,15 +382,16 @@
                 document.getElementById('res-sol').innerText=this.c.sol;
                 const b=document.getElementById('res-exp'); b.innerHTML='';
                 this.c.pairs.forEach((p,k)=>{
-                    b.innerHTML += `<div class="mb-3 border-b border-white/10 pb-2"><span class="text-blue-400 font-bold block mb-1">${p.ok}</span><span class="text-slate-300 italic text-[11px] leading-tight block">${this.c.exp[k]}</span></div>`;
+                    // Added uppercase to word
+                    b.innerHTML += `<div class="mb-3 border-b border-white/10 pb-2"><span class="text-blue-400 font-bold block mb-1 uppercase">${p.ok}</span><span class="text-slate-300 italic text-[11px] leading-tight block">${this.c.exp[k]}</span></div>`;
                 });
                 const t=document.getElementById('res-title'); const msg=document.getElementById('res-msg'); const ico=document.getElementById('res-icon');
                 if(w){
-                    t.innerText="VITTORIA!"; t.className="text-4xl font-black text-green-500 mb-1";
+                    t.innerText="VITTORIA!"; t.className="text-4xl font-black text-green-500 mb-1 uppercase";
                     msg.innerText=`Hai vinto € ${this.m.toLocaleString()}`; ico.innerText="🏆";
                     this.saveSess(this.m);
                 } else {
-                    t.innerText="PECCATO"; t.className="text-4xl font-black text-red-500 mb-1";
+                    t.innerText="PECCATO"; t.className="text-4xl font-black text-red-500 mb-1 uppercase";
                     msg.innerText=`Persi € ${this.m.toLocaleString()}`; ico.innerText="💀";
                     this.saveSess(0);
                 }
